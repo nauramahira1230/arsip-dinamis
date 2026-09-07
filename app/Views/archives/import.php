@@ -21,38 +21,11 @@
             <form action="<?= base_url('archives/processPreview') ?>" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
                 <?= csrf_field() ?>
 
-                <!-- Form Pengaturan Default Sederhana -->
-                <div class="card bg-body-tertiary mb-3">
-                    <div class="card-header fw-bold text-secondary">Pengaturan Default Fisik</div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-3">
-                                <label class="form-label">Semula</label>
-                                <input type="text" name="default_semula" class="form-control" value="Kertas">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Menjadi</label>
-                                <input type="text" name="default_menjadi" class="form-control" value="Digital (PDF)">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Alat Scan</label>
-                                <input type="text" name="default_alat_scan" class="form-control" value="Flatbed Scanner A4/F4">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Status Autentikasi</label>
-                                <select name="default_status_auth" class="form-select">
-                                    <option value="Terautentikasi" selected>Terautentikasi</option>
-                                    <option value="Belum Terautentikasi">Belum Terautentikasi</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Input File Excel -->
                 <div class="mb-3">
                     <label class="form-label fw-bold">Pilih File Excel (.xlsx / .xls)</label>
                     <input type="file" name="excel_file" class="form-control" required accept=".xlsx, .xls">
+                    <div class="form-text">Uraian arsip pada file Excel akan dianalisis AI untuk mengisi jenis naskah dan nama berkas. Hasilnya dapat diperiksa dan disesuaikan pada halaman preview.</div>
                 </div>
 
                 <button type="submit" id="btnSubmit" class="btn btn-primary">

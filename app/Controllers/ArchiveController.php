@@ -51,32 +51,35 @@ class ArchiveController extends BaseController
 
         $jsonInput = json_encode($rawTexts, JSON_UNESCAPED_UNICODE);
 
-        $prompt = "Bayangkan Anda adalah seorang arsiparis alih media profesional yang diberi tugas untuk menganalisis uraian arsip.
+          $prompt = "Bayangkan Anda seorang arsiparis alih media. Anda diperintahkan memberi nama berkas dan menentukan jenis naskah berdasarkan uraian arsip.
 
-Berikut adalah daftar uraian arsip dalam format JSON array:
+Berikut daftar uraian arsip dalam format JSON array. Setiap elemen adalah satu arsip dan nomor indeksnya wajib dipertahankan:
 {$jsonInput}
 
-Tugas Anda:
-Untuk SETIAP uraian arsip di atas, tentukan nilai berikut:
-1. 'jenis_naskah': WAJIB PILIH SALAH SATU dari opsi baku berikut (sesuai konteks uraian):
-   - Surat Biasa / Surat Keluar
-   - Surat Keputusan (SK)
-   - Surat Edaran (SE)
-   - Notulen Rapat
-   - Laporan Kegiatan
-   - Contrak / Perjanjian Kerja Sama
-   - Berita Acara
+Untuk SETIAP uraian, kerjakan aturan berikut.
 
-2. 'kategori_arsip': WAJIB PILIH SALAH SATU dari opsi berikut:
-   - Vital
-   - Terjaga
-   - Umum
-   - Statis
-   - Dinaktif
+1. 'jenis_naskah': pilih tepat SATU nilai dari daftar baku ini:
+    - Surat Keputusan
+    - Surat Edaran
+    - Surat Biasa
+    - Notulen Rapat
+    - Laporan Kegiatan
+    - Perjanjian Kerja Sama
+    - Berita Acara
+    Gunakan 'Surat Keputusan' jika uraian memuat SK atau keputusan/penetapan pejabat. Jangan menambahkan nomor, tanggal, instansi, atau uraian lain ke nilai jenis naskah.
 
-3. 'nama_berkas': Buat nama/judul berkas yang RINGKAS, RAPI, dan PADAT yang merangkum inti dari uraian arsip tersebut (DILARANG meng-copy paste utuh uraian arsip).
+2. 'kategori_arsip': pilih tepat SATU nilai dari: Vital, Terjaga, Umum, Statis, Dinamis.
 
-Kembalikan respon HANYA dalam format JSON ARRAY OF OBJECTS dengan urutan indeks yang sama persis seperti input, tanpa tanda markdown/backticks:
+3. 'nama_berkas': buat judul/nama berkas baru yang menggambarkan inti arsip, seperti nama yang akan dipakai arsiparis pada daftar berkas.
+    - Minimal 3 kata; boleh lebih jika diperlukan.
+    - Gunakan frasa nominal yang singkat, bukan kalimat dan bukan paragraf.
+    - Ambil inti kegiatan, objek, atau pokok keputusan dari uraian.
+    - Jangan menyalin uraian secara utuh.
+    - Jangan memasukkan nomor surat, tanggal lengkap, alamat, nama pejabat, kata 'uraian arsip', atau penjelasan tambahan.
+    - Jangan mengulang label jenis naskah sebagai seluruh nama berkas.
+    - Contoh: uraian tentang 'SK ... tentang Izin Lokasi, Pembebasan dan Penggunaan Tanah ...' menghasilkan nama berkas 'Izin Lokasi Pembebasan dan Penggunaan Tanah', bukan nomor SK atau seluruh isi uraian.
+
+Kembalikan HANYA JSON ARRAY OF OBJECTS, tanpa markdown/backticks, dengan jumlah elemen dan urutan indeks yang sama persis seperti input:
 [
   {
     \"jenis_naskah\": \"...\",
@@ -126,11 +129,11 @@ Kembalikan respon HANYA dalam format JSON ARRAY OF OBJECTS dengan urutan indeks 
             return redirect()->back()->with('error', 'File Excel tidak valid.');
         }
 
-        // Tangkap input default masal (hanya untuk alat scan & fisik)
-        $defaultSemula   = $this->request->getPost('default_semula') ?? 'Kertas';
-        $defaultMenjadi  = $this->request->getPost('default_menjadi') ?? 'Digital (PDF)';
-        $defaultAlatScan = $this->request->getPost('default_alat_scan') ?? 'Flatbed Scanner A4/F4';
-        $defaultStatus   = $this->request->getPost('default_status_auth') ?? 'Terautentikasi';
+        // Nilai teknis alih media ditetapkan otomatis agar form hanya memerlukan file Excel.
+        $defaultSemula   = 'Kertas';
+        $defaultMenjadi  = 'Digital (PDF)';
+        $defaultAlatScan = 'Flatbed Scanner A4/F4';
+        $defaultStatus   = 'Terautentikasi';
 
         try {
             $spreadsheet = IOFactory::load($file->getTempName());

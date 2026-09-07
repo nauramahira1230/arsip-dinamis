@@ -5,89 +5,88 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Preview Data Arsip (22 Kolom)</title>
+    <title>Preview Data Arsip</title>
     <!-- Bootstrap 5 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --ink: #183153;
+            --ink: #1f2937;
             --muted: #667085;
-            --line: #dce4ec;
-            --soft-blue: #f4f8fc;
-            --accent: #0f766e;
+            --line: #9ca3af;
+            --header: #fff200;
+            --accent: #2563eb;
         }
 
-        body {
-            color: var(--ink);
-            background: #eef3f7 !important;
-        }
+        body { color: var(--ink); background: #f3f4f6 !important; }
 
-        .page-heading {
-            border-left: 5px solid var(--accent);
-            padding-left: 1rem;
-        }
+        .page-heading { border-left: 5px solid var(--accent); padding-left: 1rem; }
 
         .page-heading h3 { letter-spacing: -.02em; }
         .page-heading p { color: var(--muted) !important; }
 
-        .preview-table-wrap {
-            border: 1px solid var(--line);
-            border-radius: 12px !important;
-            box-shadow: 0 12px 30px rgba(24, 49, 83, .08) !important;
-            overflow: auto;
-        }
+        .preview-table-wrap { border: 1px solid var(--line); overflow: auto; background: #fff; }
 
-        .preview-table {
-            min-width: 2500px;
-            border-color: var(--line);
-        }
+        .preview-table { min-width: 2750px; border-color: var(--line); table-layout: auto; }
 
         .preview-table thead th {
             position: sticky;
             top: 0;
             z-index: 2;
-            padding: .85rem .75rem;
-            color: #fff;
-            background: var(--ink);
-            border-color: rgba(255, 255, 255, .16);
-            box-shadow: inset 0 -3px 0 var(--accent);
+            padding: .55rem .5rem;
+            color: #111827;
+            background: var(--header);
+            border: 1px solid #111827;
+            box-shadow: none;
             white-space: nowrap;
             text-align: center;
             vertical-align: middle;
-            font-size: .76rem;
-            letter-spacing: .04em;
+            font-size: .75rem;
+            letter-spacing: 0;
             text-transform: uppercase;
         }
 
         .preview-table tbody td {
-            padding: .6rem;
+            padding: .25rem;
             background: #fff;
-            border-color: var(--line);
+            border: 1px solid var(--line);
+            vertical-align: top;
         }
 
-        .preview-table tbody tr:nth-child(even) td { background: var(--soft-blue); }
-        .preview-table tbody tr:hover td { background: #e8f5f3; }
+        .preview-table tbody tr:hover td { background: #eff6ff; }
 
-        .preview-table tbody td:first-child {
-            position: sticky;
-            left: 0;
-            z-index: 1;
-            color: var(--accent);
-            background: inherit;
-            box-shadow: 5px 0 10px rgba(24, 49, 83, .06);
-        }
+        .preview-table th:first-child, .preview-table td:first-child { min-width: 48px; width: 48px; }
+        .preview-table th:nth-child(2), .preview-table td:nth-child(2) { min-width: 150px; }
+        .preview-table th:nth-child(3), .preview-table td:nth-child(3) { min-width: 150px; }
+        .preview-table th:nth-child(4), .preview-table td:nth-child(4) { min-width: 180px; }
+        .preview-table th:nth-child(5), .preview-table td:nth-child(5) { min-width: 130px; }
+        .preview-table th:nth-child(6), .preview-table td:nth-child(6) { min-width: 300px; }
+        .preview-table th:nth-child(7), .preview-table td:nth-child(7) { min-width: 520px; }
+        .preview-table th:nth-child(8), .preview-table td:nth-child(8) { min-width: 120px; }
+        .preview-table th:nth-child(9), .preview-table td:nth-child(9) { min-width: 120px; }
+        .preview-table th:nth-child(10), .preview-table td:nth-child(10),
+        .preview-table th:nth-child(11), .preview-table td:nth-child(11) { min-width: 120px; }
+        .preview-table th:nth-child(12), .preview-table td:nth-child(12) { min-width: 180px; }
+        .preview-table th:nth-child(13), .preview-table td:nth-child(13) { min-width: 175px; }
+        .preview-table th:nth-child(14), .preview-table td:nth-child(14) { min-width: 180px; }
+        .preview-table th:nth-child(15), .preview-table td:nth-child(15),
+        .preview-table th:nth-child(16), .preview-table td:nth-child(16),
+        .preview-table th:nth-child(17), .preview-table td:nth-child(17) { min-width: 100px; }
+        .preview-table th:nth-child(18), .preview-table td:nth-child(18),
+        .preview-table th:nth-child(19), .preview-table td:nth-child(19) { min-width: 90px; }
+        .preview-table th:nth-child(20), .preview-table td:nth-child(20) { min-width: 220px; }
+        .preview-table th:nth-child(21), .preview-table td:nth-child(21) { min-width: 180px; }
+        .preview-table th:last-child, .preview-table td:last-child { min-width: 60px; width: 60px; }
 
-        .table-input { min-width: 130px; }
-        .table-input-sm { min-width: 90px; }
-        .table-input-lg { min-width: 250px; }
+        .table-input, .table-input-sm, .table-input-lg { min-width: 0; width: 100%; }
 
         .preview-table .form-control {
             min-height: 38px;
-            border-color: #d5dee8;
-            background: rgba(255, 255, 255, .86);
-            border-radius: 7px;
+            border-color: transparent;
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
             transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
         }
 
@@ -122,7 +121,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
         <div class="page-heading">
             <h3 class="fw-bold text-dark mb-1">Preview Data Hasil Import & Analisis AI</h3>
-            <p class="text-muted mb-0">Semua 22 kolom ditampilkan utuh. Kamu bisa edit langsung atau hapus baris sebelum disimpan.</p>
+            <p class="text-muted mb-0">Periksa dan edit hasil AI langsung seperti lembar Excel sebelum disimpan.</p>
         </div>
         <div class="d-flex gap-2 preview-actions">
             <a href="<?= base_url('archives/import') ?>" class="btn btn-outline-secondary">
@@ -141,7 +140,7 @@
             <table class="table table-bordered table-hover align-middle mb-0 text-nowrap preview-table">
                 <thead>
                     <tr>
-                        <th style="width: 40px;">No</th>
+                        <th>No</th>
                         <th>Unit Pencipta</th>
                         <th>Unit Pengolah</th>
                         <th>Jenis Naskah (AI)</th>
@@ -149,7 +148,7 @@
                         <th>Nama Berkas (AI)</th>
                         <th>Uraian Arsip</th>
                         <th>Jumlah Lembar</th>
-                        <th>Kurun Waktu (Tahun)</th>
+                        <th>Kurun Waktu</th>
                         <th>Semula</th>
                         <th>Menjadi</th>
                         <th>Alat Scan</th>
@@ -169,110 +168,41 @@
                     <?php if (!empty($previewData) && is_array($previewData)): ?>
                         <?php foreach ($previewData as $i => $row): ?>
                             <tr>
-                                <!-- 1. No Index -->
                                 <td class="text-center fw-bold"><?= $i + 1 ?></td>
-
-                                <!-- 2. Unit Pencipta -->
-                                <td>
-                                    <input type="text" name="archives[<?= $i ?>][unit_pencipta]" value="<?= esc($row['unit_pencipta']) ?>" class="form-control table-input">
-                                </td>
-
-                                <!-- 3. Unit Pengolah -->
-                                <td>
-                                    <input type="text" name="archives[<?= $i ?>][unit_pengolah]" value="<?= esc($row['unit_pengolah']) ?>" class="form-control table-input">
-                                </td>
-
-                                <!-- 4. Jenis Naskah -->
+                                <?php foreach (['unit_pencipta', 'unit_pengolah'] as $field): ?>
+                                    <td>
+                                        <?= esc($row[$field]) ?>
+                                        <input type="hidden" name="archives[<?= $i ?>][<?= $field ?>]" value="<?= esc($row[$field]) ?>">
+                                    </td>
+                                <?php endforeach; ?>
                                 <td>
                                     <input type="text" name="archives[<?= $i ?>][jenis_naskah]" value="<?= esc($row['jenis_naskah']) ?>" class="form-control table-input">
                                 </td>
-
-                                <!-- 5. Kategori Arsip -->
                                 <td>
                                     <input type="text" name="archives[<?= $i ?>][kategori_arsip]" value="<?= esc($row['kategori_arsip']) ?>" class="form-control table-input">
                                 </td>
-
-                                <!-- 6. Nama Berkas -->
                                 <td>
                                     <input type="text" name="archives[<?= $i ?>][nama_berkas]" value="<?= esc($row['nama_berkas']) ?>" class="form-control table-input-lg">
                                 </td>
-
-                                <!-- 7. Uraian Arsip -->
                                 <td>
                                     <textarea name="archives[<?= $i ?>][uraian_arsip]" class="form-control table-input-lg" rows="2"><?= esc($row['uraian_arsip']) ?></textarea>
                                 </td>
-
-                                <!-- 8. Jumlah Lembar -->
+                                <?php foreach (['jumlah_lembar', 'kurun_waktu', 'semula', 'menjadi', 'alat_scan'] as $field): ?>
+                                    <td>
+                                        <?= esc($row[$field]) ?>
+                                        <input type="hidden" name="archives[<?= $i ?>][<?= $field ?>]" value="<?= esc($row[$field]) ?>">
+                                    </td>
+                                <?php endforeach; ?>
                                 <td>
-                                    <input type="text" name="archives[<?= $i ?>][jumlah_lembar]" value="<?= esc($row['jumlah_lembar']) ?>" class="form-control table-input-sm">
+                                    <?= esc($row['waktu_scan']) ?>
+                                    <input type="hidden" name="archives[<?= $i ?>][waktu_scan]" value="<?= esc($row['waktu_scan']) ?>">
                                 </td>
-
-                                <!-- 9. Kurun Waktu -->
-                                <td>
-                                    <input type="text" name="archives[<?= $i ?>][kurun_waktu]" value="<?= esc($row['kurun_waktu']) ?>" class="form-control table-input-sm">
-                                </td>
-
-                                <!-- 10. Semula -->
-                                <td>
-                                    <input type="text" name="archives[<?= $i ?>][semula]" value="<?= esc($row['semula']) ?>" class="form-control table-input-sm">
-                                </td>
-
-                                <!-- 11. Menjadi -->
-                                <td>
-                                    <input type="text" name="archives[<?= $i ?>][menjadi]" value="<?= esc($row['menjadi']) ?>" class="form-control table-input-sm">
-                                </td>
-
-                                <!-- 12. Alat Scan -->
-                                <td>
-                                    <input type="text" name="archives[<?= $i ?>][alat_scan]" value="<?= esc($row['alat_scan']) ?>" class="form-control table-input">
-                                </td>
-
-                                <!-- 13. Waktu Scan -->
-                                <td>
-                                    <input type="datetime-local" name="archives[<?= $i ?>][waktu_scan]" value="<?= date('Y-m-d\TH:i', strtotime($row['waktu_scan'])) ?>" class="form-control table-input">
-                                </td>
-
-                                <!-- 14. Tingkat Perkembangan -->
-                                <td>
-                                    <input type="text" name="archives[<?= $i ?>][tingkat_perkembangan]" value="<?= esc($row['tingkat_perkembangan']) ?>" class="form-control table-input-sm">
-                                </td>
-
-                                <!-- 15. No Sampul -->
-                                <td>
-                                    <input type="text" name="archives[<?= $i ?>][no_sampul]" value="<?= esc($row['no_sampul']) ?>" class="form-control table-input-sm text-center fw-bold">
-                                </td>
-
-                                <!-- 16. No Item -->
-                                <td>
-                                    <input type="text" name="archives[<?= $i ?>][no_item]" value="<?= esc($row['no_item']) ?>" class="form-control table-input-sm">
-                                </td>
-
-                                <!-- 17. Boks -->
-                                <td>
-                                    <input type="text" name="archives[<?= $i ?>][boks]" value="<?= esc($row['boks']) ?>" class="form-control table-input-sm">
-                                </td>
-
-                                <!-- 18. Rak (Otomatis dari Excel Mentah) -->
-                                <td>
-                                    <input type="text" name="archives[<?= $i ?>][rak]" value="<?= esc($row['rak']) ?>" class="form-control table-input-sm">
-                                </td>
-
-                                <!-- 19. RO (Otomatis dari Excel Mentah) -->
-                                <td>
-                                    <input type="text" name="archives[<?= $i ?>][ro]" value="<?= esc($row['ro']) ?>" class="form-control table-input-sm">
-                                </td>
-
-                                <!-- 20. Lokasi (Otomatis dari Excel Mentah) -->
-                                <td>
-                                    <input type="text" name="archives[<?= $i ?>][lokasi]" value="<?= esc($row['lokasi']) ?>" class="form-control table-input">
-                                </td>
-
-                                <!-- 21. Status Autentikasi -->
-                                <td>
-                                    <input type="text" name="archives[<?= $i ?>][status_authentication]" value="<?= esc($row['status_authentication']) ?>" class="form-control table-input">
-                                </td>
-
-                                <!-- 22. Aksi Hapus Baris -->
+                                <?php foreach (['tingkat_perkembangan', 'no_sampul', 'no_item', 'boks', 'rak', 'ro', 'lokasi', 'status_authentication'] as $field): ?>
+                                    <td>
+                                        <?= esc($row[$field]) ?>
+                                        <input type="hidden" name="archives[<?= $i ?>][<?= $field ?>]" value="<?= esc($row[$field]) ?>">
+                                    </td>
+                                <?php endforeach; ?>
                                 <td class="text-center action-cell">
                                     <button type="button" class="btn btn-outline-danger btn-sm" title="Hapus Baris Ini" onclick="this.closest('tr').remove();">
                                         <i class="fa fa-trash"></i>
