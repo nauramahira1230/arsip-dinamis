@@ -1,5 +1,6 @@
 <?php
 /** @var array $previewData */
+$kegiatan = $kegiatan ?? [];
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -10,23 +11,22 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --ink: #1f2937;
-            --muted: #667085;
-            --line: #9ca3af;
-            --header: #fff200;
-            --accent: #2563eb;
-        }
+        :root { --ink: #102a43; --muted: #6b7c93; --line: #d5e0e6; --header: #e8f7f4; --accent: #0f766e; }
 
-        body { color: var(--ink); background: #f3f4f6 !important; }
+        body { color: var(--ink); background: #f5f8fa !important; font-family: 'Manrope', sans-serif; }
+
+        .topbar { background: var(--ink); color: #fff; padding: 1rem 0; }
+        .brand { color: #fff; text-decoration: none; font: 700 1.1rem 'Space Grotesk', sans-serif; letter-spacing: -.03em; }
+        .brand i { color: #6ee7d8; }
 
         .page-heading { border-left: 5px solid var(--accent); padding-left: 1rem; }
 
-        .page-heading h3 { letter-spacing: -.02em; }
+        .page-heading h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.04em; }
         .page-heading p { color: var(--muted) !important; }
 
-        .preview-table-wrap { border: 1px solid var(--line); overflow: auto; background: #fff; }
+        .preview-table-wrap { border: 1px solid var(--line); border-radius: 14px; overflow: auto; background: #fff; box-shadow: 0 12px 26px rgba(16,42,67,.06); }
 
         .preview-table { min-width: 2750px; border-color: var(--line); table-layout: auto; }
 
@@ -37,24 +37,25 @@
             padding: .55rem .5rem;
             color: #111827;
             background: var(--header);
-            border: 1px solid #111827;
-            box-shadow: none;
+            border: 1px solid #ccebe5;
+            box-shadow: 0 2px 4px rgba(16,42,67,.05);
             white-space: nowrap;
             text-align: center;
             vertical-align: middle;
             font-size: .75rem;
             letter-spacing: 0;
             text-transform: uppercase;
+            letter-spacing: .05em;
         }
 
         .preview-table tbody td {
             padding: .25rem;
             background: #fff;
-            border: 1px solid var(--line);
+            border: 1px solid #edf1f3;
             vertical-align: top;
         }
 
-        .preview-table tbody tr:hover td { background: #eff6ff; }
+        .preview-table tbody tr:hover td { background: #f4fbfa; }
 
         .preview-table th:first-child, .preview-table td:first-child { min-width: 48px; width: 48px; }
         .preview-table th:nth-child(2), .preview-table td:nth-child(2) { min-width: 150px; }
@@ -115,13 +116,15 @@
         }
     </style>
 </head>
-<body class="bg-light">
+<body>
+<div class="topbar"><div class="container-fluid px-4"><a class="brand" href="<?= site_url('/archives/dashboard') ?>"><i class="fa fa-archive me-2"></i>ArsipDinamis</a></div></div>
 <div class="container-fluid py-4">
 
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
         <div class="page-heading">
             <h3 class="fw-bold text-dark mb-1">Preview Data Hasil Import & Analisis AI</h3>
             <p class="text-muted mb-0">Periksa dan edit hasil AI langsung seperti lembar Excel sebelum disimpan.</p>
+            <div class="mt-2"><span class="badge text-bg-success">Kegiatan: <?= esc($kegiatan['nama_kegiatan']) ?></span> <span class="badge text-bg-light border">Target: <?= number_format($kegiatan['target_lembar']) ?> lembar</span></div>
         </div>
         <div class="d-flex gap-2 preview-actions">
             <a href="<?= base_url('archives/import') ?>" class="btn btn-outline-secondary">

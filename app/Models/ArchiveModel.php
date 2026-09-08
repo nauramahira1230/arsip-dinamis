@@ -34,7 +34,8 @@ class ArchiveModel extends Model
         'rak',
         'ro',
         'lokasi',
-        'status_authentication'
+        'status_authentication',
+        'kegiatan_id'
     ];
 
     protected $useTimestamps = true;
@@ -49,5 +50,29 @@ class ArchiveModel extends Model
             'total_inactive'      => $this->where('kategori_arsip', 'Dinamis Inaktif')->countAllResults(),
             'total_authenticated' => $this->where('status_authentication', 'Terautentikasi')->countAllResults(),
         ];
+    }
+
+    public function getActivityProgress(): array
+    {
+        $query = $this->db->query(
+            "SELECT k.id, k.nama_kegiatan, k.tahun, k.jenis_naskah, k.target_lembar,
+                    COALESCE(SUM(NULLIF(regexp_replace(a.jumlah_lembar::text, '[^0-9]', '', 'g'), '')::numeric), 0) AS realisasi_lembar
+             FROM kegiatan k
+             LEFT JOIN digitized_archives a ON a.kegiatan_id = k.id
+             GROUP BY k.id, k.nama_kegiatan, k.tahun, k.jenis_naskah, k.target_lembar
+             ORDER BY k.tahun DESC, k.nama_kegiatan ASC"
+        );
+
+        return array_map(static function (array $activity): array {
+            $target = (int) $activity['target_lembar'];
+            $realisasi = (int) $activity['realisasi_lembar'];
+            $activity['realisasi_lembar'] = $realisasi;
+            $activity['sisa_target'] = max($target - $realisasi, 0);
+            $activity['persentase_capaian'] = $target > 0
+                ? min(round(($realisasi / $target) * 100, 2), 100)
+                : 0;
+
+            return $activity;
+        }, $query->getResultArray());
     }
 }

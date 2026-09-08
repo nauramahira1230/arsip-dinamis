@@ -3,26 +3,30 @@
 namespace App\Controllers;
 
 use App\Models\ArchiveModel;
+use App\Models\KegiatanModel;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ArchiveController extends BaseController
 {
     protected $archiveModel;
+    protected $kegiatanModel;
 
     public function __construct()
     {
         $this->archiveModel = new ArchiveModel();
+        $this->kegiatanModel = new KegiatanModel();
     }
 
     public function dashboard()
     {
         $stats = $this->archiveModel->getDashboardStats();
+        $stats['activityProgress'] = $this->archiveModel->getActivityProgress();
         return view('archives/dashboard', $stats);
     }
 
     public function import()
     {
-        return view('archives/import');
+        return view('archives/import', ['kegiatan' => $this->kegiatanModel->getForImport()]);
     }
 
     public function index()
@@ -35,12 +39,14 @@ class ArchiveController extends BaseController
     {
         $session = session();
         $previewData = $session->get('preview_data');
+        $kegiatanId = $session->get('preview_kegiatan_id');
+        $kegiatan = $kegiatanId ? $this->kegiatanModel->find($kegiatanId) : null;
 
-        if (!$previewData) {
+        if (!$previewData || !$kegiatan) {
             return redirect()->to('/archives/import')->with('error', 'Silakan upload file Excel terlebih dahulu.');
         }
 
-        return view('archives/preview', ['previewData' => $previewData]);
+        return view('archives/preview', ['previewData' => $previewData, 'kegiatan' => $kegiatan]);
     }
 
     // --- ANALISIS BATCH DENGAN AI ARSIPARIS ALIH MEDIA ---
@@ -123,6 +129,12 @@ Kembalikan HANYA JSON ARRAY OF OBJECTS, tanpa markdown/backticks, dengan jumlah 
     // --- PROSES UPLOAD EXCEL ---
     public function processPreview()
     {
+        $kegiatanId = trim((string) $this->request->getPost('kegiatan_id'));
+        $kegiatan = $this->kegiatanModel->find($kegiatanId);
+        if (!$kegiatan) {
+            return redirect()->back()->withInput()->with('error', 'Pilih kegiatan yang valid terlebih dahulu.');
+        }
+
         $file = $this->request->getFile('excel_file');
 
         if (!$file || !$file->isValid()) {
@@ -204,6 +216,7 @@ Kembalikan HANYA JSON ARRAY OF OBJECTS, tanpa markdown/backticks, dengan jumlah 
             }
 
             session()->set('preview_data', $transformedData);
+            session()->set('preview_kegiatan_id', $kegiatan['id']);
             return redirect()->to('/archives/preview');
 
         } catch (\Exception $e) {
@@ -215,10 +228,19 @@ Kembalikan HANYA JSON ARRAY OF OBJECTS, tanpa markdown/backticks, dengan jumlah 
     public function saveBulk()
     {
         $dataPost = $this->request->getPost('archives');
+        $kegiatanId = session()->get('preview_kegiatan_id');
+        if (!$kegiatanId || !$this->kegiatanModel->find($kegiatanId)) {
+            return redirect()->to('/archives/import')->with('error', 'Kegiatan upload tidak valid atau sudah kedaluwarsa.');
+        }
 
         if (!empty($dataPost) && is_array($dataPost)) {
+            foreach ($dataPost as &$archive) {
+                $archive['kegiatan_id'] = $kegiatanId;
+            }
+            unset($archive);
             $this->archiveModel->insertBatch($dataPost);
             session()->remove('preview_data');
+            session()->remove('preview_kegiatan_id');
 
             return redirect()->to('/archives')->with('success', 'Data arsip berhasil disimpan!');
         }

@@ -20,3 +20,12 @@ $routes->group('archives', function ($routes) {
     $routes->get('preview', 'ArchiveController::preview');
     $routes->post('saveBulk', 'ArchiveController::saveBulk');
 });
+
+$routes->group('kegiatan', function ($routes) {
+    $routes->get('/', 'KegiatanController::index');
+    $routes->get('create', 'KegiatanController::create');
+    $routes->post('store', 'KegiatanController::store');
+    $routes->get('edit/(:segment)', 'KegiatanController::edit/$1');
+    $routes->post('update/(:segment)', 'KegiatanController::update/$1');
+    $routes->post('delete/(:segment)', 'KegiatanController::delete/$1');
+});
