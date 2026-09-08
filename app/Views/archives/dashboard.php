@@ -13,9 +13,6 @@
         :root { --navy: #102a43; --teal: #0f766e; --orange: #f97316; --paper: #f5f7fa; --ink: #172b4d; --muted: #6b7c93; }
         body { background: var(--paper) !important; color: var(--ink); font-family: 'DM Sans', sans-serif; }
         h1, h2, h3, h4, h5, .navbar-brand { font-family: 'Space Grotesk', sans-serif; }
-        .navbar { background: var(--navy) !important; padding: 1rem 0; box-shadow: 0 8px 24px rgba(16,42,67,.12); }
-        .navbar-brand { letter-spacing: -.03em; }
-        .brand-mark { display: inline-grid; place-items: center; width: 36px; height: 36px; margin-right: .6rem; border-radius: 10px; background: var(--orange); color: #fff; }
         .eyebrow { color: var(--teal); font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
         .page-title { font-size: clamp(1.65rem, 3vw, 2.35rem); letter-spacing: -.05em; }
         .intro { color: var(--muted); max-width: 560px; }
@@ -35,31 +32,15 @@
         .progress { height: 10px; background: #e8eef2; border-radius: 99px; }
         .progress-bar { background: linear-gradient(90deg, var(--teal), #2aa198); border-radius: 99px; }
         .activity-meta { color: var(--muted); font-size: .88rem; }
-        @media (max-width: 768px) { .dashboard-actions { width: 100%; } .dashboard-actions .btn { flex: 1; } }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="<?= site_url('/archives/dashboard'); ?>">
-            <span class="brand-mark"><i class="bi bi-archive-fill"></i></span>Alih Media Arsip Dinamis
-        </a>
-    </div>
-</nav>
+<?= view('partials/app_navbar') ?>
 
 <div class="container">
     <div class="d-flex justify-content-between align-items-end gap-3 mb-4 flex-wrap">
         <div><div class="eyebrow mb-2">Pusat kendali arsip</div><h1 class="page-title fw-bold mb-2">Dashboard Ringkasan</h1><p class="intro mb-0">Pantau volume arsip, status autentikasi, dan capaian setiap kegiatan dalam satu layar.</p></div>
-        <div class="dashboard-actions d-flex gap-2">
-            <a href="<?= site_url('/kegiatan'); ?>" class="btn btn-outline-dark"><i class="bi bi-kanban me-1"></i> Master Kegiatan</a>
-            <a href="<?= site_url('/archives/import'); ?>" class="btn btn-success me-2">
-                <i class="bi bi-file-earmark-arrow-up me-1"></i> Import Excel Mentah
-            </a>
-            <a href="<?= site_url('/archives'); ?>" class="btn btn-primary">
-                <i class="bi bi-table me-1"></i> Data Arsip Supabase
-            </a>
-        </div>
     </div>
 
     <div class="row g-3">

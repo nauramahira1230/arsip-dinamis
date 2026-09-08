@@ -11,15 +11,13 @@ $kegiatan = $kegiatan ?? [];
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --ink: #102a43; --muted: #6b7c93; --line: #d5e0e6; --header: #e8f7f4; --accent: #0f766e; }
 
         body { color: var(--ink); background: #f5f8fa !important; font-family: 'Manrope', sans-serif; }
 
-        .topbar { background: var(--ink); color: #fff; padding: 1rem 0; }
-        .brand { color: #fff; text-decoration: none; font: 700 1.1rem 'Space Grotesk', sans-serif; letter-spacing: -.03em; }
-        .brand i { color: #6ee7d8; }
 
         .page-heading { border-left: 5px solid var(--accent); padding-left: 1rem; }
 
@@ -117,7 +115,8 @@ $kegiatan = $kegiatan ?? [];
     </style>
 </head>
 <body>
-<div class="topbar"><div class="container-fluid px-4"><a class="brand" href="<?= site_url('/archives/dashboard') ?>"><i class="fa fa-archive me-2"></i>ArsipDinamis</a></div></div>
+<?php $navbarFluid = 'container-fluid px-4'; ?>
+<?= view('partials/app_navbar', ['navbarFluid' => $navbarFluid]) ?>
 <div class="container-fluid py-4">
 
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">

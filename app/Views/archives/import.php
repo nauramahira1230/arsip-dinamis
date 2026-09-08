@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <title>Import Data Arsip</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --ink:#102a43; --muted:#6b7c93; --teal:#0f766e; --line:#dce7ee; }
         body { background:#f5f8fa !important; color:var(--ink); font-family:'Manrope',sans-serif; }
-        .topbar { background:var(--ink); color:#fff; padding:1rem 0; }
-        .brand { color:#fff; text-decoration:none; font:700 1.1rem 'Space Grotesk',sans-serif; letter-spacing:-.03em; }
-        .brand i { color:#6ee7d8; }
         .shell { max-width:850px; }
         .kicker { color:var(--teal); text-transform:uppercase; letter-spacing:.14em; font-size:.7rem; font-weight:800; }
         h1 { font:700 clamp(1.7rem,4vw,2.5rem) 'Space Grotesk',sans-serif; letter-spacing:-.05em; }
@@ -30,7 +28,7 @@
     </style>
 </head>
 <body>
-<div class="topbar"><div class="container"><a class="brand" href="<?= site_url('/archives/dashboard') ?>"><i class="fa fa-archive me-2"></i>ArsipDinamis</a></div></div>
+<?= view('partials/app_navbar') ?>
 <div class="container shell py-5">
 
     <?php if (session()->getFlashdata('error')): ?>
