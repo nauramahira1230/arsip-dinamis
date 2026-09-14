@@ -17,6 +17,8 @@ $routes->group('archives', function ($routes) {
     
     // Disesuaikan dengan action form pada View (processPreview dan saveBulk)
     $routes->post('processPreview', 'ArchiveController::processPreview');
+    $routes->get('mapping', 'ArchiveController::mapping');
+    $routes->post('processMapping', 'ArchiveController::processMapping');
     $routes->get('preview', 'ArchiveController::preview');
     $routes->post('saveBulk', 'ArchiveController::saveBulk');
 });

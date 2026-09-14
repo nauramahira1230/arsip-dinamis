@@ -62,6 +62,45 @@
                     <div class="form-text mt-2">Uraian arsip akan dianalisis AI. Hasilnya dapat diperiksa dan disesuaikan pada halaman preview.</div>
                 </div>
 
+                <div class="border-top pt-4 mb-4">
+                    <h2 class="h6 fw-bold mb-3">Konfigurasi batch</h2>
+                    <p class="form-text">Isi hanya nilai yang memang berlaku untuk seluruh upload. Kolom kosong tetap NULL.</p>
+                    <div class="row g-3">
+                        <?php foreach ([
+                            'unit_pencipta' => 'Unit Pencipta',
+                            'unit_pengolah' => 'Unit Pengolah',
+                            'semula' => 'Semula',
+                            'menjadi' => 'Menjadi',
+                            'alat_scan' => 'Alat Scan',
+                            'lokasi' => 'Lokasi',
+                        ] as $field => $label): ?>
+                            <div class="col-md-6"><label class="form-label" for="<?= $field ?>"><?= $label ?></label><input class="form-control" id="<?= $field ?>" name="<?= $field ?>" value="<?= esc(old($field)) ?>"></div>
+                        <?php endforeach; ?>
+                        <div class="col-md-6">
+                            <label class="form-label">Waktu Scan</label>
+                            <div class="row g-2">
+                                <div class="col-7">
+                                    <select class="form-select" id="tahun_scan" name="tahun_scan">
+                                        <option value="">Tahun</option>
+                                        <?php for ($year = (int) date('Y'); $year >= 2000; $year--): ?>
+                                            <option value="<?= $year ?>" <?= old('tahun_scan') == $year ? 'selected' : '' ?>><?= $year ?></option>
+                                        <?php endfor; ?>
+                                    </select>
+                                </div>
+                                <div class="col-5">
+                                    <select class="form-select" id="bulan_scan" name="bulan_scan">
+                                        <option value="">Bulan</option>
+                                        <?php foreach ([1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'] as $month => $label): ?>
+                                            <option value="<?= $month ?>" <?= old('bulan_scan') == $month ? 'selected' : '' ?>><?= $label ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-text mt-2">Disimpan sebagai periode tahun-bulan.</div>
+                        </div>
+                    </div>
+                </div>
+
                 <button type="submit" id="btnSubmit" class="btn btn-primary">
                     <span id="btnText"><i class="fa fa-upload me-1"></i> Upload & Process dengan AI</span>
                     <span id="btnLoading" style="display:none;">

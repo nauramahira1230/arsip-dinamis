@@ -48,12 +48,12 @@
                         <tr>
                             <th>ID</th>
                             <th>Kode Klasifikasi</th>
-                            <th>Uraian Informasi</th>
+                            <th>Uraian Arsip</th>
                             <th>Kurun Waktu</th>
-                            <th>Media Semula</th>
-                            <th>Media Menjadi</th>
+                            <th>Semula</th>
+                            <th>Menjadi</th>
                             <th>Kategori</th>
-                            <th>Hak Akses</th>
+                            <th>Lokasi</th>
                             <th>Status Auth</th>
                             <th>Aksi</th>
                         </tr>
@@ -63,14 +63,14 @@
                             <?php foreach ($archives as $item): ?>
                                 <tr>
                                     <td><?= $item['id']; ?></td>
-                                    <td><strong><?= esc($item['kode_klasifikasi']); ?></strong></td>
-                                    <td><?= esc($item['uraian_informasi']); ?></td>
+                                    <td><strong><?= esc($item['kode_klasifikasi'] ?? ''); ?></strong></td>
+                                    <td><?= esc($item['uraian_arsip'] ?? ''); ?></td>
                                     <td><?= esc($item['kurun_waktu']); ?></td>
-                                    <td><?= esc($item['media_semula']); ?></td>
-                                    <td><span class="badge bg-info text-dark"><?= esc($item['media_menjadi']); ?></span></td>
+                                    <td><?= esc($item['semula'] ?? ''); ?></td>
+                                    <td><span class="badge bg-info text-dark"><?= esc($item['menjadi'] ?? ''); ?></span></td>
                                     <td><?= esc($item['kategori_arsip']); ?></td>
-                                    <td><?= esc($item['hak_akses']); ?></td>
-                                    <td><span class="badge bg-success"><?= esc($item['status_authentication']); ?></span></td>
+                                    <td><?= esc($item['lokasi'] ?? ''); ?></td>
+                                    <td><span class="badge bg-secondary"><?= esc($item['status_authentication'] ?? 'Belum'); ?></span></td>
                                     <td>
                                         <a href="<?= site_url('/archives/edit/' . $item['id']); ?>" class="btn btn-sm btn-warning">
                                             <i class="bi bi-pencil"></i>

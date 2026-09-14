@@ -4,17 +4,31 @@ namespace App\Controllers;
 
 use App\Models\ArchiveModel;
 use App\Models\KegiatanModel;
-use PhpOffice\PhpSpreadsheet\IOFactory;
+use App\Services\ArchiveAIService;
+use App\Services\ArchiveTransformService;
+use App\Services\ArchiveValidationService;
+use App\Services\ExcelImportService;
+use App\Services\NumberingService;
 
 class ArchiveController extends BaseController
 {
     protected $archiveModel;
     protected $kegiatanModel;
+    private ExcelImportService $excelImport;
+    private ArchiveAIService $archiveAI;
+    private ArchiveTransformService $transformer;
+    private ArchiveValidationService $archiveValidator;
+    private NumberingService $numbering;
 
     public function __construct()
     {
         $this->archiveModel = new ArchiveModel();
         $this->kegiatanModel = new KegiatanModel();
+        $this->excelImport = new ExcelImportService();
+        $this->archiveAI = new ArchiveAIService();
+        $this->transformer = new ArchiveTransformService();
+        $this->archiveValidator = new ArchiveValidationService();
+        $this->numbering = new NumberingService($this->archiveModel);
     }
 
     public function dashboard()
@@ -31,15 +45,13 @@ class ArchiveController extends BaseController
 
     public function index()
     {
-        $data['archives'] = $this->archiveModel->findAll();
-        return view('archives/index', $data);
+        return view('archives/index', ['archives' => $this->archiveModel->findAll()]);
     }
 
     public function preview()
     {
-        $session = session();
-        $previewData = $session->get('preview_data');
-        $kegiatanId = $session->get('preview_kegiatan_id');
+        $previewData = session()->get('preview_data');
+        $kegiatanId = session()->get('preview_kegiatan_id');
         $kegiatan = $kegiatanId ? $this->kegiatanModel->find($kegiatanId) : null;
 
         if (!$previewData || !$kegiatan) {
@@ -49,182 +61,116 @@ class ArchiveController extends BaseController
         return view('archives/preview', ['previewData' => $previewData, 'kegiatan' => $kegiatan]);
     }
 
-    // --- ANALISIS BATCH DENGAN AI ARSIPARIS ALIH MEDIA ---
-    private function analyzeArchiveBatchWithAI(array $rawTexts): array
-    {
-        $apiKey = env('GEMINI_API_KEY', 'YOUR_GEMINI_API_KEY_HERE');
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $apiKey;
-
-        $jsonInput = json_encode($rawTexts, JSON_UNESCAPED_UNICODE);
-
-          $prompt = "Bayangkan Anda seorang arsiparis alih media. Anda diperintahkan memberi nama berkas dan menentukan jenis naskah berdasarkan uraian arsip.
-
-Berikut daftar uraian arsip dalam format JSON array. Setiap elemen adalah satu arsip dan nomor indeksnya wajib dipertahankan:
-{$jsonInput}
-
-Untuk SETIAP uraian, kerjakan aturan berikut.
-
-1. 'jenis_naskah': pilih tepat SATU nilai dari daftar baku ini:
-    - Surat Keputusan
-    - Surat Edaran
-    - Surat Biasa
-    - Notulen Rapat
-    - Laporan Kegiatan
-    - Perjanjian Kerja Sama
-    - Berita Acara
-    Gunakan 'Surat Keputusan' jika uraian memuat SK atau keputusan/penetapan pejabat. Jangan menambahkan nomor, tanggal, instansi, atau uraian lain ke nilai jenis naskah.
-
-2. 'kategori_arsip': pilih tepat SATU nilai dari: Vital, Terjaga, Umum, Statis, Dinamis.
-
-3. 'nama_berkas': buat judul/nama berkas baru yang menggambarkan inti arsip, seperti nama yang akan dipakai arsiparis pada daftar berkas.
-    - Minimal 3 kata; boleh lebih jika diperlukan.
-    - Gunakan frasa nominal yang singkat, bukan kalimat dan bukan paragraf.
-    - Ambil inti kegiatan, objek, atau pokok keputusan dari uraian.
-    - Jangan menyalin uraian secara utuh.
-    - Jangan memasukkan nomor surat, tanggal lengkap, alamat, nama pejabat, kata 'uraian arsip', atau penjelasan tambahan.
-    - Jangan mengulang label jenis naskah sebagai seluruh nama berkas.
-    - Contoh: uraian tentang 'SK ... tentang Izin Lokasi, Pembebasan dan Penggunaan Tanah ...' menghasilkan nama berkas 'Izin Lokasi Pembebasan dan Penggunaan Tanah', bukan nomor SK atau seluruh isi uraian.
-
-Kembalikan HANYA JSON ARRAY OF OBJECTS, tanpa markdown/backticks, dengan jumlah elemen dan urutan indeks yang sama persis seperti input:
-[
-  {
-    \"jenis_naskah\": \"...\",
-    \"kategori_arsip\": \"...\",
-    \"nama_berkas\": \"...\"
-  }
-]";
-
-        $payload = [
-            "contents" => [
-                ["parts" => [["text" => $prompt]]]
-            ],
-            "generationConfig" => [
-                "response_mime_type" => "application/json"
-            ]
-        ];
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        if ($response) {
-            $result = json_decode($response, true);
-            $jsonText = $result['candidates'][0]['content']['parts'][0]['text'] ?? null;
-            if ($jsonText) {
-                $parsed = json_decode($jsonText, true);
-                if (is_array($parsed)) {
-                    return $parsed;
-                }
-            }
-        }
-
-        return [];
-    }
-
-    // --- PROSES UPLOAD EXCEL ---
     public function processPreview()
     {
         $kegiatanId = trim((string) $this->request->getPost('kegiatan_id'));
-        $kegiatan = $this->kegiatanModel->find($kegiatanId);
-        if (!$kegiatan) {
+        if (!$this->kegiatanModel->find($kegiatanId)) {
             return redirect()->back()->withInput()->with('error', 'Pilih kegiatan yang valid terlebih dahulu.');
         }
 
         $file = $this->request->getFile('excel_file');
-
         if (!$file || !$file->isValid()) {
             return redirect()->back()->with('error', 'File Excel tidak valid.');
         }
 
-        // Nilai teknis alih media ditetapkan otomatis agar form hanya memerlukan file Excel.
-        $defaultSemula   = 'Kertas';
-        $defaultMenjadi  = 'Digital (PDF)';
-        $defaultAlatScan = 'Flatbed Scanner A4/F4';
-        $defaultStatus   = 'Terautentikasi';
-
         try {
-            $spreadsheet = IOFactory::load($file->getTempName());
-            $sheetData = $spreadsheet->getActiveSheet()->toArray();
-
-            $rowsToProcess = [];
-            $rawTextsForAI = [];
-
-            // Skip 2 baris header Excel
-            for ($i = 2; $i < count($sheetData); $i++) {
-                $row = $sheetData[$i];
-                if (empty($row[3]) || trim($row[3]) == '' || is_numeric($row[3])) {
-                    continue;
-                }
-                $rowsToProcess[] = $row;
-                $rawTextsForAI[] = trim($row[3]);
-            }
-
-            // Panggil AI sekaligus secara Batch
-            $aiResults = [];
-            if (!empty($rawTextsForAI)) {
-                $aiResults = $this->analyzeArchiveBatchWithAI($rawTextsForAI);
-            }
-
-            $transformedData = [];
-            $sampulCounter = [];
-
-            foreach ($rowsToProcess as $index => $row) {
-                $uraianMentah = trim($row[3]);
-
-                // Ekstrak hasil AI
-                $jenisNaskahAI  = $aiResults[$index]['jenis_naskah'] ?? 'Surat Biasa / Surat Keluar';
-                $kategoriArsipAI = $aiResults[$index]['kategori_arsip'] ?? 'Umum';
-                $namaBerkasAI   = $aiResults[$index]['nama_berkas'] ?? 'Berkas Arsip';
-
-                // Penomoran Sampul otomatis per tahun
-                $tahun = !empty($row[4]) ? trim($row[4]) : 'Lainnya';
-                if (!isset($sampulCounter[$tahun])) {
-                    $sampulCounter[$tahun] = 1;
-                } else {
-                    $sampulCounter[$tahun]++;
-                }
-                $noSampulAuto = $sampulCounter[$tahun];
-
-                $transformedData[] = [
-                    'unit_pencipta'         => 'KOTA BOGOR',
-                    'unit_pengolah'         => 'Bidang Kearsipan',
-                    'jenis_naskah'          => $jenisNaskahAI,
-                    'kategori_arsip'        => $kategoriArsipAI,
-                    'nama_berkas'           => $namaBerkasAI,
-                    'uraian_arsip'          => $uraianMentah,
-                    'jumlah_lembar'         => $row[6] ?? '1 BERKAS',
-                    'kurun_waktu'           => $tahun,
-                    'semula'                => $defaultSemula,
-                    'menjadi'               => $defaultMenjadi,
-                    'alat_scan'             => $defaultAlatScan,
-                    'waktu_scan'            => date('Y-m-d H:i:s'),
-                    'tingkat_perkembangan'  => $row[5] ?? 'ASLI',
-                    'no_sampul'             => $noSampulAuto,
-                    'no_item'               => $row[8] ?? '-',
-                    'boks'                  => $row[9] ?? '-',
-                    // RAK, RO, LOKASI OTOMATIS DARI EXCEL MENTAH
-                    'rak'                   => !empty($row[10]) ? trim($row[10]) : 'R-01',
-                    'ro'                    => !empty($row[11]) ? trim($row[11]) : 'RO-01',
-                    'lokasi'                => !empty($row[12]) ? trim($row[12]) : 'Gedung Depo Lt. 2',
-                    'status_authentication' => $defaultStatus
-                ];
-            }
-
-            session()->set('preview_data', $transformedData);
-            session()->set('preview_kegiatan_id', $kegiatan['id']);
-            return redirect()->to('/archives/preview');
-
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal memproses file Excel: ' . $e->getMessage());
+            $inspection = $this->excelImport->inspect($file->getTempName());
+            $batch = [
+                'unit_pencipta' => trim((string) $this->request->getPost('unit_pencipta')),
+                'unit_pengolah' => trim((string) $this->request->getPost('unit_pengolah')),
+                'semula' => trim((string) $this->request->getPost('semula')),
+                'menjadi' => trim((string) $this->request->getPost('menjadi')),
+                'alat_scan' => trim((string) $this->request->getPost('alat_scan')),
+                'waktu_scan' => $this->scanPeriod(
+                    $this->request->getPost('tahun_scan'),
+                    $this->request->getPost('bulan_scan')
+                ),
+                'lokasi' => trim((string) $this->request->getPost('lokasi')),
+            ];
+            session()->set('import_payload', ['kegiatan_id' => $kegiatanId, 'inspection' => $inspection, 'batch' => $batch]);
+            return redirect()->to('/archives/mapping');
+        } catch (\Throwable $e) {
+            return redirect()->back()->withInput()->with('error', 'Gagal membaca file Excel: ' . $e->getMessage());
         }
     }
 
-    // --- SIMPAN KE DB (MENANGKAP EDITAN DARI HALAMAN PREVIEW) ---
+    public function mapping()
+    {
+        $payload = session()->get('import_payload');
+        if (!$payload) {
+            return redirect()->to('/archives/import')->with('error', 'Upload Excel terlebih dahulu.');
+        }
+
+        $sheet = $payload['inspection']['sheets'][$payload['inspection']['sheet']];
+        return view('archives/mapping', [
+            'headers' => $sheet['headers'],
+            'mapping' => $sheet['mapping'],
+            'fields' => $this->excelImport->fields(),
+            'sheetName' => $payload['inspection']['sheet'],
+        ]);
+    }
+
+    private function scanPeriod(mixed $year, mixed $month): ?string
+    {
+        $year = (int) $year;
+        $month = (int) $month;
+
+        if ($year < 1900 || $year > 2200 || $month < 1 || $month > 12) {
+            return null;
+        }
+
+        return sprintf('%04d-%02d', $year, $month);
+    }
+
+    public function processMapping()
+    {
+        $payload = session()->get('import_payload');
+        if (!$payload) {
+            return redirect()->to('/archives/import')->with('error', 'Sesi import sudah berakhir.');
+        }
+
+        $sheet = $payload['inspection']['sheets'][$payload['inspection']['sheet']];
+        $mapping = [];
+        $postedMapping = $this->request->getPost('mapping');
+        $postedMapping = is_array($postedMapping) ? $postedMapping : [];
+        foreach ($this->excelImport->fields() as $field) {
+            $value = $postedMapping[$field] ?? null;
+            if ($value !== null && $value !== '') {
+                $mapping[$field] = (int) $value;
+            }
+        }
+        if (!array_key_exists('uraian', $mapping)) {
+            return redirect()->back()->withInput()->with('error', 'Kolom Uraian wajib dipetakan.');
+        }
+
+        $descriptions = [];
+        $descriptionIndexes = [];
+        foreach ($sheet['rows'] as $index => $row) {
+            $description = trim((string) ($row[$mapping['uraian']] ?? ''));
+            if ($description !== '') {
+                $descriptionIndexes[] = $index;
+                $descriptions[] = $description;
+            }
+        }
+
+        $aiResults = [];
+        foreach ($this->archiveAI->analyze($descriptions) as $index => $result) {
+            $aiResults[$descriptionIndexes[$index] ?? $index] = $result;
+        }
+
+        $rows = $this->transformer->transform($sheet, $mapping, $payload['batch'], $aiResults, $payload['kegiatan_id']);
+        $rows = $this->numbering->apply($rows, $payload['kegiatan_id']);
+        $errors = $this->archiveValidator->validate($rows);
+        if ($errors !== []) {
+            return redirect()->back()->withInput()->with('error', implode(' ', $errors));
+        }
+
+        session()->set('preview_data', $rows);
+        session()->set('preview_kegiatan_id', $payload['kegiatan_id']);
+        session()->remove('import_payload');
+        return redirect()->to('/archives/preview');
+    }
+
     public function saveBulk()
     {
         $dataPost = $this->request->getPost('archives');
@@ -233,18 +179,21 @@ Kembalikan HANYA JSON ARRAY OF OBJECTS, tanpa markdown/backticks, dengan jumlah 
             return redirect()->to('/archives/import')->with('error', 'Kegiatan upload tidak valid atau sudah kedaluwarsa.');
         }
 
-        if (!empty($dataPost) && is_array($dataPost)) {
-            foreach ($dataPost as &$archive) {
-                $archive['kegiatan_id'] = $kegiatanId;
-            }
-            unset($archive);
-            $this->archiveModel->insertBatch($dataPost);
-            session()->remove('preview_data');
-            session()->remove('preview_kegiatan_id');
-
-            return redirect()->to('/archives')->with('success', 'Data arsip berhasil disimpan!');
+        $allowed = array_flip($this->archiveModel->allowedFields());
+        $rows = [];
+        foreach (is_array($dataPost) ? $dataPost : [] as $archive) {
+            $row = array_intersect_key($archive, $allowed);
+            $row['kegiatan_id'] = $kegiatanId;
+            $row['status_authentication'] = 'Belum';
+            $rows[] = $row;
+        }
+        $errors = $this->archiveValidator->validate($rows);
+        if ($rows === [] || $errors !== []) {
+            return redirect()->to('/archives/preview')->with('error', $errors[0] ?? 'Tidak ada data untuk disimpan.');
         }
 
-        return redirect()->to('/archives/import')->with('error', 'Tidak ada data untuk disimpan.');
+        $this->archiveModel->insertBatch($rows);
+        session()->remove(['preview_data', 'preview_kegiatan_id']);
+        return redirect()->to('/archives')->with('success', 'Data arsip berhasil disimpan dengan status Belum.');
     }
 }

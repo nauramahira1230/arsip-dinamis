@@ -14,3 +14,8 @@ ALTER TABLE digitized_archives
 
 CREATE INDEX IF NOT EXISTS digitized_archives_kegiatan_id_idx
     ON digitized_archives(kegiatan_id);
+
+ALTER TABLE digitized_archives
+    ADD COLUMN IF NOT EXISTS no text,
+    ADD COLUMN IF NOT EXISTS kode_klasifikasi text,
+    ADD COLUMN IF NOT EXISTS jumlah_sumber text;

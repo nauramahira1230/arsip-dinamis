@@ -143,6 +143,7 @@ $kegiatan = $kegiatan ?? [];
                 <thead>
                     <tr>
                         <th>No</th>
+                        <th>Kode Klasifikasi</th>
                         <th>Unit Pencipta</th>
                         <th>Unit Pengolah</th>
                         <th>Jenis Naskah (AI)</th>
@@ -170,7 +171,8 @@ $kegiatan = $kegiatan ?? [];
                     <?php if (!empty($previewData) && is_array($previewData)): ?>
                         <?php foreach ($previewData as $i => $row): ?>
                             <tr>
-                                <td class="text-center fw-bold"><?= $i + 1 ?></td>
+                                <td class="text-center fw-bold"><?= esc($row['no'] ?? '') ?><input type="hidden" name="archives[<?= $i ?>][no]" value="<?= esc($row['no'] ?? '') ?>"></td>
+                                <td><?= esc($row['kode_klasifikasi'] ?? '') ?><input type="hidden" name="archives[<?= $i ?>][kode_klasifikasi]" value="<?= esc($row['kode_klasifikasi'] ?? '') ?>"></td>
                                 <?php foreach (['unit_pencipta', 'unit_pengolah'] as $field): ?>
                                     <td>
                                         <?= esc($row[$field]) ?>
@@ -189,7 +191,7 @@ $kegiatan = $kegiatan ?? [];
                                 <td>
                                     <textarea name="archives[<?= $i ?>][uraian_arsip]" class="form-control table-input-lg" rows="2"><?= esc($row['uraian_arsip']) ?></textarea>
                                 </td>
-                                <?php foreach (['jumlah_lembar', 'kurun_waktu', 'semula', 'menjadi', 'alat_scan'] as $field): ?>
+                                <?php foreach (['jumlah_lembar', 'jumlah_sumber', 'kurun_waktu', 'semula', 'menjadi', 'alat_scan'] as $field): ?>
                                     <td>
                                         <?= esc($row[$field]) ?>
                                         <input type="hidden" name="archives[<?= $i ?>][<?= $field ?>]" value="<?= esc($row[$field]) ?>">
@@ -214,7 +216,7 @@ $kegiatan = $kegiatan ?? [];
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="22" class="text-center py-4 text-muted">Tidak ada data untuk ditampilkan.</td>
+                            <td colspan="24" class="text-center py-4 text-muted">Tidak ada data untuk ditampilkan.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

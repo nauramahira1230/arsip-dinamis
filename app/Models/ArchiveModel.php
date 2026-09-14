@@ -13,8 +13,10 @@ class ArchiveModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     
-    // 22 Kolom Baku Sesuai Request
+    // Keep source facts and interpreted archive metadata in the same record.
     protected $allowedFields    = [
+        'no',
+        'kode_klasifikasi',
         'unit_pencipta',
         'unit_pengolah',
         'jenis_naskah',
@@ -22,6 +24,7 @@ class ArchiveModel extends Model
         'nama_berkas',
         'uraian_arsip',
         'jumlah_lembar',
+        'jumlah_sumber',
         'kurun_waktu',
         'semula',
         'menjadi',
