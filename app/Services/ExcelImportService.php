@@ -8,24 +8,17 @@ class ExcelImportService
 {
     private const HEADER_ALIASES = [
         'no' => ['no', 'nomor', 'nomor urut'],
-        'kode_klasifikasi' => ['klas', 'klasifikasi', 'kode klasifikasi', 'indeks'],
+        'kode_klasifikasi' => ['kode klasifikasi', 'kode klas', 'klasifikasi', 'klas', 'indeks'],
         'uraian' => ['uraian', 'uraian arsip', 'deskripsi', 'informasi'],
         'kurun_waktu' => ['kurun waktu', 'tahun', 'periode'],
         'tingkat_perkembangan' => ['tingkat perkembangan', 'tingkat', 'status dokumen'],
-        'jumlah_lembar' => ['jumlah lembar', 'jml lembar', 'lembar'],
-        'jumlah_sumber' => ['jumlah', 'jumlah berkas', 'volume'],
+        'jumlah_lembar' => ['jumlah lembar', 'jml lembar', 'jumlah', 'lembar'],
         'lokasi_simpan' => ['lokasi simpan', 'lokasi', 'tempat simpan'],
-        'berkas' => ['berkas', 'nama berkas', 'nomor berkas'],
+        'no_item' => ['no item', 'nomor item', 'item', 'berkas', 'nomor berkas'],
         'boks' => ['boks', 'box'],
         'rak' => ['rak'],
         'ro' => ['ro'],
         'no_sampul' => ['no sampul', 'nomor sampul', 'sampul'],
-        'no_item' => ['no item', 'nomor item', 'item'],
-        'nama_pihak' => ['nama pihak', 'pihak'],
-        'nomor_dokumen' => ['nomor dokumen', 'nomor surat', 'no dokumen'],
-        'luas_tanah' => ['luas tanah'],
-        'desa' => ['desa'],
-        'kecamatan' => ['kecamatan'],
     ];
 
     public function inspect(string $path): array
@@ -79,11 +72,12 @@ class ExcelImportService
     {
         $mapping = [];
         foreach (self::HEADER_ALIASES as $field => $aliases) {
-            foreach ($headers as $index => $header) {
-                $normalized = $this->normalizeHeader($header);
-                if (in_array($normalized, $aliases, true)) {
-                    $mapping[$field] = $index;
-                    break;
+            foreach ($aliases as $alias) {
+                foreach ($headers as $index => $header) {
+                    if ($this->normalizeHeader($header) === $alias) {
+                        $mapping[$field] = $index;
+                        break 2;
+                    }
                 }
             }
         }

@@ -104,7 +104,7 @@
                 <button type="submit" id="btnSubmit" class="btn btn-primary">
                     <span id="btnText"><i class="fa fa-upload me-1"></i> Upload & Process dengan AI</span>
                     <span id="btnLoading" style="display:none;">
-                        <i class="fa fa-spinner fa-spin me-1"></i> Menganalisis Data AI...
+                        <i class="fa fa-spinner fa-spin me-1"></i> Membaca Excel, memproses data, dan menyiapkan preview...
                     </span>
                 </button>
             </form>

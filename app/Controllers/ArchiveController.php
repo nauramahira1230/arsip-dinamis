@@ -87,8 +87,13 @@ class ArchiveController extends BaseController
                 ),
                 'lokasi' => trim((string) $this->request->getPost('lokasi')),
             ];
-            session()->set('import_payload', ['kegiatan_id' => $kegiatanId, 'inspection' => $inspection, 'batch' => $batch]);
-            return redirect()->to('/archives/mapping');
+            $sheet = $inspection['sheets'][$inspection['sheet']];
+            if (!array_key_exists('uraian', $sheet['mapping'])) {
+                session()->set('import_payload', ['kegiatan_id' => $kegiatanId, 'inspection' => $inspection, 'batch' => $batch]);
+                return redirect()->to('/archives/mapping')->with('error', 'Beberapa kolom Excel tidak dapat dikenali otomatis. Pilih hanya kolom Uraian.');
+            }
+
+            return $this->buildPreview($sheet, $sheet['mapping'], $batch, $kegiatanId);
         } catch (\Throwable $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal membaca file Excel: ' . $e->getMessage());
         }
@@ -102,10 +107,11 @@ class ArchiveController extends BaseController
         }
 
         $sheet = $payload['inspection']['sheets'][$payload['inspection']['sheet']];
+        $missingFields = array_values(array_diff($this->excelImport->fields(), array_keys($sheet['mapping'])));
         return view('archives/mapping', [
             'headers' => $sheet['headers'],
             'mapping' => $sheet['mapping'],
-            'fields' => $this->excelImport->fields(),
+            'fields' => $missingFields,
             'sheetName' => $payload['inspection']['sheet'],
         ]);
     }
@@ -130,7 +136,7 @@ class ArchiveController extends BaseController
         }
 
         $sheet = $payload['inspection']['sheets'][$payload['inspection']['sheet']];
-        $mapping = [];
+        $mapping = $sheet['mapping'];
         $postedMapping = $this->request->getPost('mapping');
         $postedMapping = is_array($postedMapping) ? $postedMapping : [];
         foreach ($this->excelImport->fields() as $field) {
@@ -143,6 +149,11 @@ class ArchiveController extends BaseController
             return redirect()->back()->withInput()->with('error', 'Kolom Uraian wajib dipetakan.');
         }
 
+        return $this->buildPreview($sheet, $mapping, $payload['batch'], $payload['kegiatan_id']);
+    }
+
+    private function buildPreview(array $sheet, array $mapping, array $batch, string $kegiatanId)
+    {
         $descriptions = [];
         $descriptionIndexes = [];
         foreach ($sheet['rows'] as $index => $row) {
@@ -158,15 +169,15 @@ class ArchiveController extends BaseController
             $aiResults[$descriptionIndexes[$index] ?? $index] = $result;
         }
 
-        $rows = $this->transformer->transform($sheet, $mapping, $payload['batch'], $aiResults, $payload['kegiatan_id']);
-        $rows = $this->numbering->apply($rows, $payload['kegiatan_id']);
+        $rows = $this->transformer->transform($sheet, $mapping, $batch, $aiResults, $kegiatanId);
+        $rows = $this->numbering->apply($rows, $kegiatanId);
         $errors = $this->archiveValidator->validate($rows);
         if ($errors !== []) {
-            return redirect()->back()->withInput()->with('error', implode(' ', $errors));
+            return redirect()->to('/archives/import')->withInput()->with('error', implode(' ', $errors));
         }
 
         session()->set('preview_data', $rows);
-        session()->set('preview_kegiatan_id', $payload['kegiatan_id']);
+        session()->set('preview_kegiatan_id', $kegiatanId);
         session()->remove('import_payload');
         return redirect()->to('/archives/preview');
     }
@@ -183,6 +194,11 @@ class ArchiveController extends BaseController
         $rows = [];
         foreach (is_array($dataPost) ? $dataPost : [] as $archive) {
             $row = array_intersect_key($archive, $allowed);
+            foreach ($row as $field => $value) {
+                if (is_string($value) && trim($value) === '') {
+                    $row[$field] = null;
+                }
+            }
             $row['kegiatan_id'] = $kegiatanId;
             $row['status_authentication'] = 'Belum';
             $rows[] = $row;

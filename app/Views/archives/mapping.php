@@ -17,7 +17,7 @@ $fields = $fields ?? [];
 <?= view('partials/app_navbar') ?>
 <div class="container mapping-shell py-5">
     <?php if (session()->getFlashdata('error')): ?><div class="alert alert-danger"><?= esc(session()->getFlashdata('error')) ?></div><?php endif; ?>
-    <div class="mb-4"><div class="text-uppercase small fw-bold text-success">Langkah 2 dari 3</div><h1 class="h2 fw-bold">Periksa mapping kolom</h1><p class="text-secondary mb-0">Sheet <strong><?= esc($sheetName) ?></strong> sudah dibaca. Koreksi mapping sebelum data ditransformasi.</p></div>
+    <div class="mb-4"><div class="text-uppercase small fw-bold text-warning">Fallback auto-detection</div><h1 class="h2 fw-bold">Lengkapi kolom yang belum dikenali</h1><p class="text-secondary mb-0">Sheet <strong><?= esc($sheetName) ?></strong> sudah dibaca. Hanya kolom yang gagal dikenali otomatis yang perlu dipilih.</p></div>
     <form action="<?= base_url('archives/processMapping') ?>" method="post" class="mapping-card p-4 p-md-5">
         <?= csrf_field() ?>
         <?php foreach ($fields as $field): ?>
@@ -26,7 +26,8 @@ $fields = $fields ?? [];
                 <div class="col-md-7"><select class="form-select" id="mapping_<?= esc($field) ?>" name="mapping[<?= esc($field) ?>]"><option value="">-- Tidak tersedia --</option><?php foreach ($headers as $index => $header): ?><option value="<?= $index ?>" <?= (string) ($mapping[$field] ?? '') === (string) $index ? 'selected' : '' ?>><?= esc($header) ?></option><?php endforeach; ?></select></div>
             </div>
         <?php endforeach; ?>
-        <div class="d-flex justify-content-between gap-2 mt-4"><a href="<?= base_url('archives/import') ?>" class="btn btn-outline-secondary">Kembali</a><button class="btn btn-primary" type="submit">Lanjut ke Preview</button></div>
+        <div class="alert alert-light border mt-4 mb-0">Kolom yang tidak tersedia akan disimpan sebagai NULL. Data seperti nama pihak, nomor dokumen, luas tanah, desa, dan kecamatan tidak diperlukan untuk output arsip.</div>
+        <div class="d-flex justify-content-between gap-2 mt-4"><a href="<?= base_url('archives/import') ?>" class="btn btn-outline-secondary">Kembali</a><button class="btn btn-primary" type="submit">Proses Data & Tampilkan Preview</button></div>
     </form>
 </div>
 </body>

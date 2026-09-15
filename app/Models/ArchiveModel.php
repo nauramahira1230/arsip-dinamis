@@ -24,7 +24,6 @@ class ArchiveModel extends Model
         'nama_berkas',
         'uraian_arsip',
         'jumlah_lembar',
-        'jumlah_sumber',
         'kurun_waktu',
         'semula',
         'menjadi',
@@ -44,6 +43,11 @@ class ArchiveModel extends Model
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
+
+    public function allowedFields(): array
+    {
+        return $this->allowedFields;
+    }
 
     public function getDashboardStats()
     {

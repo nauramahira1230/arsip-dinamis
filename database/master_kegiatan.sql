@@ -18,4 +18,32 @@ CREATE INDEX IF NOT EXISTS digitized_archives_kegiatan_id_idx
 ALTER TABLE digitized_archives
     ADD COLUMN IF NOT EXISTS no text,
     ADD COLUMN IF NOT EXISTS kode_klasifikasi text,
-    ADD COLUMN IF NOT EXISTS jumlah_sumber text;
+    ADD COLUMN IF NOT EXISTS unit_pencipta text,
+    ADD COLUMN IF NOT EXISTS unit_pengolah text,
+    ADD COLUMN IF NOT EXISTS jenis_naskah text,
+    ADD COLUMN IF NOT EXISTS kategori_arsip text,
+    ADD COLUMN IF NOT EXISTS nama_berkas text,
+    ADD COLUMN IF NOT EXISTS uraian_arsip text,
+    ADD COLUMN IF NOT EXISTS jumlah_lembar text,
+    ADD COLUMN IF NOT EXISTS kurun_waktu text,
+    ADD COLUMN IF NOT EXISTS semula text,
+    ADD COLUMN IF NOT EXISTS menjadi text,
+    ADD COLUMN IF NOT EXISTS alat_scan text,
+    ADD COLUMN IF NOT EXISTS waktu_scan text,
+    ADD COLUMN IF NOT EXISTS tingkat_perkembangan text,
+    ADD COLUMN IF NOT EXISTS no_sampul text,
+    ADD COLUMN IF NOT EXISTS no_item text,
+    ADD COLUMN IF NOT EXISTS boks text,
+    ADD COLUMN IF NOT EXISTS rak text,
+    ADD COLUMN IF NOT EXISTS ro text,
+    ADD COLUMN IF NOT EXISTS lokasi text,
+    ADD COLUMN IF NOT EXISTS status_authentication text,
+    ADD COLUMN IF NOT EXISTS created_at timestamp NULL,
+    ADD COLUMN IF NOT EXISTS updated_at timestamp NULL,
+    ADD COLUMN IF NOT EXISTS kegiatan_id uuid;
+
+ALTER TABLE digitized_archives
+    ALTER COLUMN jumlah_lembar TYPE text USING jumlah_lembar::text,
+    ALTER COLUMN kurun_waktu TYPE text USING kurun_waktu::text,
+    ALTER COLUMN no_sampul TYPE text USING no_sampul::text,
+    ALTER COLUMN waktu_scan TYPE text USING waktu_scan::text;

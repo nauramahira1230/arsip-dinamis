@@ -121,8 +121,9 @@ $kegiatan = $kegiatan ?? [];
 
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
         <div class="page-heading">
-            <h3 class="fw-bold text-dark mb-1">Preview Data Hasil Import & Analisis AI</h3>
-            <p class="text-muted mb-0">Periksa dan edit hasil AI langsung seperti lembar Excel sebelum disimpan.</p>
+            <h3 class="fw-bold text-dark mb-1">Preview 22 Kolom Arsip</h3>
+            <p class="text-muted mb-0">Data faktual dari Excel dipertahankan. Periksa hasil klasifikasi AI sebelum disimpan.</p>
+            <p class="text-muted mb-0"><strong><?= count(is_array($previewData ?? null) ? $previewData : []) ?></strong> data berhasil diproses.</p>
             <div class="mt-2"><span class="badge text-bg-success">Kegiatan: <?= esc($kegiatan['nama_kegiatan']) ?></span> <span class="badge text-bg-light border">Target: <?= number_format($kegiatan['target_lembar']) ?> lembar</span></div>
         </div>
         <div class="d-flex gap-2 preview-actions">
@@ -191,7 +192,7 @@ $kegiatan = $kegiatan ?? [];
                                 <td>
                                     <textarea name="archives[<?= $i ?>][uraian_arsip]" class="form-control table-input-lg" rows="2"><?= esc($row['uraian_arsip']) ?></textarea>
                                 </td>
-                                <?php foreach (['jumlah_lembar', 'jumlah_sumber', 'kurun_waktu', 'semula', 'menjadi', 'alat_scan'] as $field): ?>
+                                <?php foreach (['jumlah_lembar', 'kurun_waktu', 'semula', 'menjadi', 'alat_scan'] as $field): ?>
                                     <td>
                                         <?= esc($row[$field]) ?>
                                         <input type="hidden" name="archives[<?= $i ?>][<?= $field ?>]" value="<?= esc($row[$field]) ?>">

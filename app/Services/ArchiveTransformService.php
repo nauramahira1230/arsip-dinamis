@@ -24,7 +24,6 @@ class ArchiveTransformService
                 'nama_berkas' => $ai['nama_berkas'] ?? null,
                 'uraian_arsip' => $this->cleanText($description),
                 'jumlah_lembar' => $this->value($source, $mapping['jumlah_lembar'] ?? null),
-                'jumlah_sumber' => $this->value($source, $mapping['jumlah_sumber'] ?? null),
                 'kurun_waktu' => $this->value($source, $mapping['kurun_waktu'] ?? null),
                 'semula' => $this->batchValue($batch, 'semula'),
                 'menjadi' => $this->batchValue($batch, 'menjadi'),
