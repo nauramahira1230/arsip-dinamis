@@ -9,8 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --ink:#102a43; --muted:#6b7c93; --teal:#0f766e; --line:#dce7ee; }
+        html, body { max-width:100%; overflow-x:hidden; }
         body { background:#f5f8fa !important; color:var(--ink); font-family:'Manrope',sans-serif; }
-        .shell { max-width:850px; }
+        .shell { width:100%; max-width:850px; }
         .kicker { color:var(--teal); text-transform:uppercase; letter-spacing:.14em; font-size:.7rem; font-weight:800; }
         h1 { font:700 clamp(1.7rem,4vw,2.5rem) 'Space Grotesk',sans-serif; letter-spacing:-.05em; }
         .intro { color:var(--muted); max-width:650px; }
@@ -19,7 +20,8 @@
         .form-label { font-weight:800; font-size:.84rem; }
         .form-select,.form-control { border-color:#cbd8e1; border-radius:9px; padding:.72rem .85rem; }
         .form-select:focus,.form-control:focus { border-color:#0f766e; box-shadow:0 0 0 3px rgba(15,118,110,.12); }
-        .dropzone { border:1.5px dashed #9ab8bf; background:#f8fcfb; border-radius:12px; padding:1.3rem; text-align:center; }
+        .dropzone { max-width:100%; border:1.5px dashed #9ab8bf; background:#f8fcfb; border-radius:12px; padding:1.3rem; text-align:center; overflow:hidden; }
+        .dropzone input { max-width:100%; }
         .dropzone i { color:var(--teal); font-size:1.6rem; }
         .form-text { color:var(--muted); }
         .btn { border-radius:9px; font-weight:800; }
