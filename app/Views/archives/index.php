@@ -30,6 +30,9 @@
             <a href="<?= site_url('/archives/export-pdf'); ?>" class="btn btn-danger" target="_blank">
                 <i class="bi bi-file-pdf me-1"></i> Cetak Laporan PDF
             </a>
+            <a href="<?= site_url('/archives/export'); ?>" class="btn btn-outline-success">
+                <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export Excel
+            </a>
         </div>
     </div>
 

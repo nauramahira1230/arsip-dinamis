@@ -1,6 +1,7 @@
 <?php
 /** @var array $previewData */
 $kegiatan = $kegiatan ?? [];
+$previewSummary = $previewSummary ?? ['total' => 0, 'AUTO' => 0, 'PERLU_VERIFIKASI' => 0, 'GAGAL_DIPROSES' => 0];
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -26,7 +27,14 @@ $kegiatan = $kegiatan ?? [];
 
         .preview-table-wrap { border: 1px solid var(--line); border-radius: 14px; overflow: auto; background: #fff; box-shadow: 0 12px 26px rgba(16,42,67,.06); }
 
-        .preview-table { min-width: 2750px; border-color: var(--line); table-layout: auto; }
+        .preview-table { width: 2750px; min-width: 2750px; border-color: var(--line); table-layout: fixed; }
+
+        .preview-table th,
+        .preview-table td {
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-wrap: break-word;
+        }
 
         .preview-table thead th {
             position: sticky;
@@ -37,7 +45,6 @@ $kegiatan = $kegiatan ?? [];
             background: var(--header);
             border: 1px solid #ccebe5;
             box-shadow: 0 2px 4px rgba(16,42,67,.05);
-            white-space: nowrap;
             text-align: center;
             vertical-align: middle;
             font-size: .75rem;
@@ -55,28 +62,29 @@ $kegiatan = $kegiatan ?? [];
 
         .preview-table tbody tr:hover td { background: #f4fbfa; }
 
-        .preview-table th:first-child, .preview-table td:first-child { min-width: 48px; width: 48px; }
-        .preview-table th:nth-child(2), .preview-table td:nth-child(2) { min-width: 150px; }
-        .preview-table th:nth-child(3), .preview-table td:nth-child(3) { min-width: 150px; }
-        .preview-table th:nth-child(4), .preview-table td:nth-child(4) { min-width: 180px; }
-        .preview-table th:nth-child(5), .preview-table td:nth-child(5) { min-width: 130px; }
-        .preview-table th:nth-child(6), .preview-table td:nth-child(6) { min-width: 300px; }
-        .preview-table th:nth-child(7), .preview-table td:nth-child(7) { min-width: 520px; }
-        .preview-table th:nth-child(8), .preview-table td:nth-child(8) { min-width: 120px; }
-        .preview-table th:nth-child(9), .preview-table td:nth-child(9) { min-width: 120px; }
-        .preview-table th:nth-child(10), .preview-table td:nth-child(10),
-        .preview-table th:nth-child(11), .preview-table td:nth-child(11) { min-width: 120px; }
-        .preview-table th:nth-child(12), .preview-table td:nth-child(12) { min-width: 180px; }
-        .preview-table th:nth-child(13), .preview-table td:nth-child(13) { min-width: 175px; }
-        .preview-table th:nth-child(14), .preview-table td:nth-child(14) { min-width: 180px; }
-        .preview-table th:nth-child(15), .preview-table td:nth-child(15),
-        .preview-table th:nth-child(16), .preview-table td:nth-child(16),
-        .preview-table th:nth-child(17), .preview-table td:nth-child(17) { min-width: 100px; }
-        .preview-table th:nth-child(18), .preview-table td:nth-child(18),
-        .preview-table th:nth-child(19), .preview-table td:nth-child(19) { min-width: 90px; }
-        .preview-table th:nth-child(20), .preview-table td:nth-child(20) { min-width: 220px; }
-        .preview-table th:nth-child(21), .preview-table td:nth-child(21) { min-width: 180px; }
-        .preview-table th:last-child, .preview-table td:last-child { min-width: 60px; width: 60px; }
+        .preview-table th:nth-child(1), .preview-table td:nth-child(1) { width: 48px; }
+        .preview-table th:nth-child(2), .preview-table td:nth-child(2) { width: 130px; }
+        .preview-table th:nth-child(3), .preview-table td:nth-child(3) { width: 150px; }
+        .preview-table th:nth-child(4), .preview-table td:nth-child(4) { width: 160px; }
+        .preview-table th:nth-child(5), .preview-table td:nth-child(5) { width: 130px; }
+        .preview-table th:nth-child(6), .preview-table td:nth-child(6) { width: 210px; }
+        .preview-table th:nth-child(7), .preview-table td:nth-child(7) { width: 360px; }
+        .preview-table th:nth-child(8), .preview-table td:nth-child(8) { width: 240px; }
+        .preview-table th:nth-child(9), .preview-table td:nth-child(9) { width: 105px; }
+        .preview-table th:nth-child(10), .preview-table td:nth-child(10) { width: 115px; }
+        .preview-table th:nth-child(11), .preview-table td:nth-child(11) { width: 115px; }
+        .preview-table th:nth-child(12), .preview-table td:nth-child(12) { width: 115px; }
+        .preview-table th:nth-child(13), .preview-table td:nth-child(13) { width: 130px; }
+        .preview-table th:nth-child(14), .preview-table td:nth-child(14) { width: 130px; }
+        .preview-table th:nth-child(15), .preview-table td:nth-child(15) { width: 110px; }
+        .preview-table th:nth-child(16), .preview-table td:nth-child(16) { width: 95px; }
+        .preview-table th:nth-child(17), .preview-table td:nth-child(17) { width: 95px; }
+        .preview-table th:nth-child(18), .preview-table td:nth-child(18) { width: 85px; }
+        .preview-table th:nth-child(19), .preview-table td:nth-child(19) { width: 85px; }
+        .preview-table th:nth-child(20), .preview-table td:nth-child(20) { width: 100px; }
+        .preview-table th:nth-child(21), .preview-table td:nth-child(21) { width: 170px; }
+        .preview-table th:nth-child(22), .preview-table td:nth-child(22) { width: 170px; }
+        .preview-table th:nth-child(23), .preview-table td:nth-child(23) { width: 60px; }
 
         .table-input, .table-input-sm, .table-input-lg { min-width: 0; width: 100%; }
 
@@ -95,7 +103,13 @@ $kegiatan = $kegiatan ?? [];
             box-shadow: 0 0 0 3px rgba(15, 118, 110, .14);
         }
 
-        .preview-table textarea { min-height: 64px; resize: vertical; }
+        .preview-table textarea {
+            min-height: 64px;
+            resize: none;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
         .action-cell { min-width: 72px; }
 
         @media (max-width: 768px) {
@@ -130,17 +144,22 @@ $kegiatan = $kegiatan ?? [];
             <a href="<?= base_url('archives/import') ?>" class="btn btn-outline-secondary">
                 <i class="fa fa-arrow-left me-1"></i> Upload Ulang
             </a>
-            <button type="button" class="btn btn-outline-success" onclick="window.print()">
-                <i class="fa fa-file-excel me-1"></i> Export / Cetak
-            </button>
+            <a href="<?= base_url('archives/export') ?>" class="btn btn-outline-success"><i class="fa fa-file-excel me-1"></i> Export Excel</a>
         </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge text-bg-light border">Total Data: <?= esc($previewSummary['total']) ?></span>
+        <span class="badge text-bg-success">AUTO: <?= esc($previewSummary['AUTO']) ?></span>
+        <span class="badge text-bg-warning">PERLU_VERIFIKASI: <?= esc($previewSummary['PERLU_VERIFIKASI']) ?></span>
+        <span class="badge text-bg-danger">GAGAL_DIPROSES: <?= esc($previewSummary['GAGAL_DIPROSES']) ?></span>
     </div>
 
     <form action="<?= base_url('archives/saveBulk') ?>" method="post">
         <?= csrf_field() ?>
 
         <div class="table-responsive preview-table-wrap" style="max-height: 75vh;">
-            <table class="table table-bordered table-hover align-middle mb-0 text-nowrap preview-table">
+            <table class="table table-bordered table-hover align-middle mb-0 preview-table">
                 <thead>
                     <tr>
                         <th>No</th>
@@ -171,7 +190,7 @@ $kegiatan = $kegiatan ?? [];
                 <tbody>
                     <?php if (!empty($previewData) && is_array($previewData)): ?>
                         <?php foreach ($previewData as $i => $row): ?>
-                            <tr>
+                            <tr class="<?= ($row['ai_status'] ?? '') === 'PERLU_VERIFIKASI' ? 'table-warning' : '' ?>">
                                 <td class="text-center fw-bold"><?= esc($row['no'] ?? '') ?><input type="hidden" name="archives[<?= $i ?>][no]" value="<?= esc($row['no'] ?? '') ?>"></td>
                                 <td><?= esc($row['kode_klasifikasi'] ?? '') ?><input type="hidden" name="archives[<?= $i ?>][kode_klasifikasi]" value="<?= esc($row['kode_klasifikasi'] ?? '') ?>"></td>
                                 <?php foreach (['unit_pencipta', 'unit_pengolah'] as $field): ?>
@@ -181,13 +200,17 @@ $kegiatan = $kegiatan ?? [];
                                     </td>
                                 <?php endforeach; ?>
                                 <td>
-                                    <input type="text" name="archives[<?= $i ?>][jenis_naskah]" value="<?= esc($row['jenis_naskah']) ?>" class="form-control table-input">
+                                    <textarea name="archives[<?= $i ?>][jenis_naskah]" class="form-control table-input" rows="2"><?= esc($row['jenis_naskah']) ?></textarea>
+                                    <input type="hidden" name="archives[<?= $i ?>][ai_status]" value="<?= esc($row['ai_status'] ?? 'GAGAL_DIPROSES') ?>">
+                                    <input type="hidden" name="archives[<?= $i ?>][ai_confidence]" value="<?= esc($row['ai_confidence'] ?? 0) ?>">
+                                    <input type="hidden" name="archives[<?= $i ?>][ai_metadata]" value="<?= esc($row['ai_metadata'] ?? '{}') ?>">
+                                    <?php if (($row['ai_status'] ?? '') === 'PERLU_VERIFIKASI'): ?><span class="badge text-bg-warning">Perlu diperiksa</span><?php endif; ?>
                                 </td>
                                 <td>
-                                    <input type="text" name="archives[<?= $i ?>][kategori_arsip]" value="<?= esc($row['kategori_arsip']) ?>" class="form-control table-input">
+                                    <textarea name="archives[<?= $i ?>][kategori_arsip]" class="form-control table-input" rows="2"><?= esc($row['kategori_arsip']) ?></textarea>
                                 </td>
                                 <td>
-                                    <input type="text" name="archives[<?= $i ?>][nama_berkas]" value="<?= esc($row['nama_berkas']) ?>" class="form-control table-input-lg">
+                                    <textarea name="archives[<?= $i ?>][nama_berkas]" class="form-control table-input-lg" rows="2"><?= esc($row['nama_berkas']) ?></textarea>
                                 </td>
                                 <td>
                                     <textarea name="archives[<?= $i ?>][uraian_arsip]" class="form-control table-input-lg" rows="2"><?= esc($row['uraian_arsip']) ?></textarea>

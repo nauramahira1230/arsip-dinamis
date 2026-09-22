@@ -19,8 +19,10 @@ $routes->group('archives', function ($routes) {
     $routes->post('processPreview', 'ArchiveController::processPreview');
     $routes->get('mapping', 'ArchiveController::mapping');
     $routes->post('processMapping', 'ArchiveController::processMapping');
+   
     $routes->get('preview', 'ArchiveController::preview');
     $routes->post('saveBulk', 'ArchiveController::saveBulk');
+    $routes->get('export', 'ArchiveController::export');
 });
 
 $routes->group('kegiatan', function ($routes) {

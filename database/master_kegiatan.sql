@@ -17,7 +17,9 @@ CREATE INDEX IF NOT EXISTS digitized_archives_kegiatan_id_idx
 
 ALTER TABLE digitized_archives
     ADD COLUMN IF NOT EXISTS no text,
+    ADD COLUMN IF NOT EXISTS indeks text,
     ADD COLUMN IF NOT EXISTS kode_klasifikasi text,
+<<<<<<< HEAD
     ADD COLUMN IF NOT EXISTS unit_pencipta text,
     ADD COLUMN IF NOT EXISTS unit_pengolah text,
     ADD COLUMN IF NOT EXISTS jenis_naskah text,
@@ -47,3 +49,9 @@ ALTER TABLE digitized_archives
     ALTER COLUMN kurun_waktu TYPE text USING kurun_waktu::text,
     ALTER COLUMN no_sampul TYPE text USING no_sampul::text,
     ALTER COLUMN waktu_scan TYPE text USING waktu_scan::text;
+=======
+    ADD COLUMN IF NOT EXISTS jumlah_sumber text,
+    ADD COLUMN IF NOT EXISTS ai_status text NOT NULL DEFAULT 'GAGAL_DIPROSES',
+    ADD COLUMN IF NOT EXISTS ai_confidence numeric(4,3),
+    ADD COLUMN IF NOT EXISTS ai_metadata jsonb;
+>>>>>>> e2270dc (kolom)

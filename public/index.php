@@ -37,6 +37,10 @@ if (getcwd() . DIRECTORY_SEPARATOR !== FCPATH) {
     chdir(FCPATH);
 }
 
+// Configure the file session path before CodeIgniter creates the session handler.
+ini_set('session.save_path', dirname(FCPATH) . DIRECTORY_SEPARATOR . 'writable' . DIRECTORY_SEPARATOR . 'session');
+define('DISABLE_DEBUG_TOOLBAR', true);
+
 /*
  *---------------------------------------------------------------
  * BOOTSTRAP THE APPLICATION

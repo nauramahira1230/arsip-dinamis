@@ -24,8 +24,13 @@
         <input class="form-control mb-3" name="nama_kegiatan" required value="<?= old('nama_kegiatan', $kegiatan['nama_kegiatan'] ?? '') ?>">
         <label class="form-label">Tahun</label>
         <input class="form-control mb-3" type="number" name="tahun" min="1" required value="<?= old('tahun', $kegiatan['tahun'] ?? date('Y')) ?>">
-        <label class="form-label">Jenis Naskah</label>
-        <input class="form-control mb-3" name="jenis_naskah" required value="<?= old('jenis_naskah', $kegiatan['jenis_naskah'] ?? '') ?>">
+        <label class="form-label" for="jenis_naskah">Jenis Kegiatan</label>
+        <select class="form-select mb-3" id="jenis_naskah" name="jenis_naskah" required>
+            <option value="">-- Pilih jenis kegiatan --</option>
+            <?php foreach (['Tekstual', 'Kartografi', 'Arsitektural', 'Audiovisual'] as $jenis): ?>
+                <option value="<?= esc($jenis) ?>" <?= old('jenis_naskah', $kegiatan['jenis_naskah'] ?? '') === $jenis ? 'selected' : '' ?>><?= esc($jenis) ?></option>
+            <?php endforeach; ?>
+        </select>
         <label class="form-label">Target Lembar</label>
         <input class="form-control mb-3" type="number" name="target_lembar" min="1" required value="<?= old('target_lembar', $kegiatan['target_lembar'] ?? '') ?>">
         <div class="pt-2"><button class="btn btn-primary"><i class="bi bi-check2 me-1"></i> Simpan Kegiatan</button> <a class="btn btn-outline-secondary" href="<?= site_url('kegiatan') ?>">Batal</a></div>

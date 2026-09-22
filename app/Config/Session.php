@@ -58,7 +58,9 @@ class Session extends BaseConfig
      *
      * IMPORTANT: You are REQUIRED to set a valid save path!
      */
-    public string $savePath = WRITEPATH . 'session';
+    // Set by public/index.php before CodeIgniter boots so FileHandler does not
+    // call ini_set() after response headers have already been sent.
+    public string $savePath = '';
 
     /**
      * --------------------------------------------------------------------------

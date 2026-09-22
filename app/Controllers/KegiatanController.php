@@ -6,6 +6,8 @@ use App\Models\KegiatanModel;
 
 class KegiatanController extends BaseController
 {
+    private const JENIS_KEGIATAN = ['Tekstual', 'Kartografi', 'Arsitektural', 'Audiovisual'];
+
     protected $kegiatanModel;
 
     public function __construct()
@@ -72,7 +74,7 @@ class KegiatanController extends BaseController
         $jenis = trim((string) $this->request->getPost('jenis_naskah'));
         $target = (int) $this->request->getPost('target_lembar');
 
-        if ($nama === '' || $tahun < 1 || $jenis === '' || $target < 1) {
+        if ($nama === '' || $tahun < 1 || !in_array($jenis, self::JENIS_KEGIATAN, true) || $target < 1) {
             return null;
         }
 

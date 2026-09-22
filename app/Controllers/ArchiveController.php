@@ -9,6 +9,8 @@ use App\Services\ArchiveTransformService;
 use App\Services\ArchiveValidationService;
 use App\Services\ExcelImportService;
 use App\Services\NumberingService;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ArchiveController extends BaseController
 {
@@ -50,15 +52,20 @@ class ArchiveController extends BaseController
 
     public function preview()
     {
-        $previewData = session()->get('preview_data');
-        $kegiatanId = session()->get('preview_kegiatan_id');
+        $previewData = $this->session->get('preview_data');
+        $previewSummary = $this->session->get('preview_summary');
+        $kegiatanId = $this->session->get('preview_kegiatan_id');
         $kegiatan = $kegiatanId ? $this->kegiatanModel->find($kegiatanId) : null;
 
         if (!$previewData || !$kegiatan) {
             return redirect()->to('/archives/import')->with('error', 'Silakan upload file Excel terlebih dahulu.');
         }
 
-        return view('archives/preview', ['previewData' => $previewData, 'kegiatan' => $kegiatan]);
+        return view('archives/preview', [
+            'previewData' => $previewData,
+            'previewSummary' => $previewSummary,
+            'kegiatan' => $kegiatan,
+        ]);
     }
 
     public function processPreview()
@@ -87,6 +94,7 @@ class ArchiveController extends BaseController
                 ),
                 'lokasi' => trim((string) $this->request->getPost('lokasi')),
             ];
+<<<<<<< HEAD
             $sheet = $inspection['sheets'][$inspection['sheet']];
             if (!array_key_exists('uraian', $sheet['mapping'])) {
                 session()->set('import_payload', ['kegiatan_id' => $kegiatanId, 'inspection' => $inspection, 'batch' => $batch]);
@@ -94,6 +102,10 @@ class ArchiveController extends BaseController
             }
 
             return $this->buildPreview($sheet, $sheet['mapping'], $batch, $kegiatanId);
+=======
+            $this->session->set('import_payload', ['kegiatan_id' => $kegiatanId, 'inspection' => $inspection, 'batch' => $batch]);
+            return redirect()->to('/archives/mapping');
+>>>>>>> e2270dc (kolom)
         } catch (\Throwable $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal membaca file Excel: ' . $e->getMessage());
         }
@@ -101,7 +113,7 @@ class ArchiveController extends BaseController
 
     public function mapping()
     {
-        $payload = session()->get('import_payload');
+        $payload = $this->session->get('import_payload');
         if (!$payload) {
             return redirect()->to('/archives/import')->with('error', 'Upload Excel terlebih dahulu.');
         }
@@ -130,7 +142,7 @@ class ArchiveController extends BaseController
 
     public function processMapping()
     {
-        $payload = session()->get('import_payload');
+        $payload = $this->session->get('import_payload');
         if (!$payload) {
             return redirect()->to('/archives/import')->with('error', 'Sesi import sudah berakhir.');
         }
@@ -140,7 +152,7 @@ class ArchiveController extends BaseController
         $postedMapping = $this->request->getPost('mapping');
         $postedMapping = is_array($postedMapping) ? $postedMapping : [];
         foreach ($this->excelImport->fields() as $field) {
-            $value = $postedMapping[$field] ?? null;
+            $value = $postedMapping[$field] ?? ($sheet['mapping'][$field] ?? null);
             if ($value !== null && $value !== '') {
                 $mapping[$field] = (int) $value;
             }
@@ -176,21 +188,28 @@ class ArchiveController extends BaseController
             return redirect()->to('/archives/import')->withInput()->with('error', implode(' ', $errors));
         }
 
+<<<<<<< HEAD
         session()->set('preview_data', $rows);
         session()->set('preview_kegiatan_id', $kegiatanId);
         session()->remove('import_payload');
+=======
+        $this->session->set('preview_data', $rows);
+        $this->session->set('preview_summary', $this->summary($rows));
+        $this->session->set('preview_kegiatan_id', $payload['kegiatan_id']);
+        $this->session->remove('import_payload');
+>>>>>>> e2270dc (kolom)
         return redirect()->to('/archives/preview');
     }
 
     public function saveBulk()
     {
         $dataPost = $this->request->getPost('archives');
-        $kegiatanId = session()->get('preview_kegiatan_id');
+        $kegiatanId = $this->session->get('preview_kegiatan_id');
         if (!$kegiatanId || !$this->kegiatanModel->find($kegiatanId)) {
             return redirect()->to('/archives/import')->with('error', 'Kegiatan upload tidak valid atau sudah kedaluwarsa.');
         }
 
-        $allowed = array_flip($this->archiveModel->allowedFields());
+        $allowed = array_flip($this->archiveModel->getAllowedFields());
         $rows = [];
         foreach (is_array($dataPost) ? $dataPost : [] as $archive) {
             $row = array_intersect_key($archive, $allowed);
@@ -209,7 +228,65 @@ class ArchiveController extends BaseController
         }
 
         $this->archiveModel->insertBatch($rows);
-        session()->remove(['preview_data', 'preview_kegiatan_id']);
+        $this->session->remove(['preview_data', 'preview_summary', 'preview_kegiatan_id']);
         return redirect()->to('/archives')->with('success', 'Data arsip berhasil disimpan dengan status Belum.');
+    }
+
+    public function export()
+    {
+        $columns = [
+            'no' => 'NO',
+            'kode_klasifikasi' => 'KODE_KLASIFIKASI',
+            'unit_pencipta' => 'UNIT_PENCIPTA',
+            'unit_pengolah' => 'UNIT_PENGOLAH',
+            'jenis_naskah' => 'JENIS_NASKAH',
+            'kategori_arsip' => 'KATEGORI_ARSIP',
+            'nama_berkas' => 'NAMA_BERKAS',
+            'uraian_arsip' => 'URAIAN_ARSIP',
+            'jumlah_lembar' => 'JUMLAH_LEMBAR',
+            'kurun_waktu' => 'KURUN_WAKTU',
+            'semula' => 'SEMULA',
+            'menjadi' => 'MENJADI',
+            'alat_scan' => 'ALAT_SCAN',
+            'waktu_scan' => 'WAKTU_SCAN',
+            'tingkat_perkembangan' => 'TINGKAT_PERKEMBANGAN',
+            'no_sampul' => 'NO_SAMPUL',
+            'no_item' => 'NO_ITEM',
+            'boks' => 'BOKS',
+            'rak' => 'RAK',
+            'ro' => 'RO',
+            'lokasi' => 'LOKASI',
+            'status_authentication' => 'STATUS_AUTHENTICATION',
+        ];
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->fromArray(array_values($columns), null, 'A1');
+        $rows = $this->session->get('preview_data') ?: $this->archiveModel->findAll();
+        $output = [];
+        foreach ($rows as $row) {
+            $output[] = array_map(static fn (string $field): ?string => $row[$field] ?? null, array_keys($columns));
+        }
+        if ($output !== []) {
+            $sheet->fromArray($output, null, 'A2');
+        }
+        $stream = fopen('php://memory', 'r+');
+        (new Xlsx($spreadsheet))->save($stream);
+        rewind($stream);
+        $content = stream_get_contents($stream);
+        fclose($stream);
+        return $this->response->download('arsip.xlsx', $content, true);
+    }
+
+    private function summary(array $rows): array
+    {
+        $summary = ['total' => count($rows), 'AUTO' => 0, 'PERLU_VERIFIKASI' => 0, 'GAGAL_DIPROSES' => 0];
+        foreach ($rows as $row) {
+            $status = $row['ai_status'] ?? 'GAGAL_DIPROSES';
+            if (!array_key_exists($status, $summary)) {
+                $status = 'GAGAL_DIPROSES';
+            }
+            $summary[$status]++;
+        }
+        return $summary;
     }
 }

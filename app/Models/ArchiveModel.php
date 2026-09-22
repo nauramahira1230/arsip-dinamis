@@ -16,6 +16,7 @@ class ArchiveModel extends Model
     // Keep source facts and interpreted archive metadata in the same record.
     protected $allowedFields    = [
         'no',
+        'indeks',
         'kode_klasifikasi',
         'unit_pencipta',
         'unit_pengolah',
@@ -37,6 +38,9 @@ class ArchiveModel extends Model
         'ro',
         'lokasi',
         'status_authentication',
+        'ai_status',
+        'ai_confidence',
+        'ai_metadata',
         'kegiatan_id'
     ];
 
@@ -44,7 +48,11 @@ class ArchiveModel extends Model
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
 
+<<<<<<< HEAD
     public function allowedFields(): array
+=======
+    public function getAllowedFields(): array
+>>>>>>> e2270dc (kolom)
     {
         return $this->allowedFields;
     }

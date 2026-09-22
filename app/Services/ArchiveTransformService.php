@@ -13,15 +13,26 @@ class ArchiveTransformService
                 continue;
             }
 
-            $ai = $aiResults[$index] ?? ['jenis_naskah' => 'Perlu Verifikasi', 'kategori_arsip' => 'Perlu Verifikasi', 'nama_berkas' => null];
+            $ai = $aiResults[$index] ?? [
+                'jenis_naskah' => null,
+                'kategori_arsip' => null,
+                'nama_berkas' => null,
+                'ai_status' => 'GAGAL_DIPROSES',
+                'ai_confidence' => 0,
+                'ai_metadata' => [],
+            ];
             $rows[] = [
                 'no' => $this->value($source, $mapping['no'] ?? null),
+                'indeks' => $this->value($source, $mapping['indeks'] ?? null),
                 'kode_klasifikasi' => $this->value($source, $mapping['kode_klasifikasi'] ?? null),
                 'unit_pencipta' => $this->batchValue($batch, 'unit_pencipta'),
                 'unit_pengolah' => $this->batchValue($batch, 'unit_pengolah'),
-                'jenis_naskah' => $ai['jenis_naskah'] ?? 'Perlu Verifikasi',
-                'kategori_arsip' => $ai['kategori_arsip'] ?? 'Perlu Verifikasi',
+                'jenis_naskah' => $ai['jenis_naskah'] ?? null,
+                'kategori_arsip' => $ai['kategori_arsip'] ?? null,
                 'nama_berkas' => $ai['nama_berkas'] ?? null,
+                'ai_status' => $ai['ai_status'] ?? 'GAGAL_DIPROSES',
+                'ai_confidence' => $ai['ai_confidence'] ?? 0,
+                'ai_metadata' => json_encode($ai['ai_metadata'] ?? [], JSON_UNESCAPED_UNICODE),
                 'uraian_arsip' => $this->cleanText($description),
                 'jumlah_lembar' => $this->value($source, $mapping['jumlah_lembar'] ?? null),
                 'kurun_waktu' => $this->value($source, $mapping['kurun_waktu'] ?? null),
