@@ -48,11 +48,7 @@ class ArchiveModel extends Model
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
 
-<<<<<<< HEAD
-    public function allowedFields(): array
-=======
     public function getAllowedFields(): array
->>>>>>> e2270dc (kolom)
     {
         return $this->allowedFields;
     }

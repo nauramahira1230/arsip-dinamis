@@ -22,7 +22,7 @@
 
 <div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-end gap-3 mb-4 flex-wrap">
-        <div><div class="eyebrow mb-2">Repositori arsip</div><h1 class="page-title mb-2">Daftar Arsip</h1><p class="muted mb-0">Data arsip yang sudah terintegrasi dan tersimpan di Supabase.</p></div>
+        <div><div class="eyebrow mb-2">Repositori arsip</div><h1 class="page-title mb-2">Daftar Arsip</h1><p class="muted mb-0">Menampilkan <?= esc($filterLabel ?? 'Semua arsip') ?>.</p></div>
         <div class="d-flex gap-2">
             <a href="<?= site_url('/archives/import'); ?>" class="btn btn-success">
                 <i class="bi bi-file-earmark-arrow-up me-1"></i> Import Baru
@@ -35,6 +35,13 @@
             </a>
         </div>
     </div>
+
+    <?php if (!empty($hasFilter)): ?>
+        <div class="d-flex align-items-center justify-content-between gap-3 mb-3 flex-wrap">
+            <span class="badge rounded-pill text-bg-light border px-3 py-2"><i class="bi bi-funnel me-1"></i><?= esc($filterLabel) ?></span>
+            <a href="<?= site_url('/archives'); ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-lg me-1"></i>Hapus filter</a>
+        </div>
+    <?php endif; ?>
 
     <?php if (session()->getFlashdata('success')): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">

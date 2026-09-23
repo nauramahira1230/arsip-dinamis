@@ -47,7 +47,30 @@ class ArchiveController extends BaseController
 
     public function index()
     {
-        return view('archives/index', ['archives' => $this->archiveModel->findAll()]);
+        $filter = trim((string) $this->request->getGet('filter'));
+        $kegiatanId = trim((string) $this->request->getGet('kegiatan_id'));
+        $query = $this->archiveModel;
+        $filterLabel = 'Semua arsip';
+
+        if ($filter === 'active') {
+            $query->where('kategori_arsip', 'Dinamis Aktif');
+            $filterLabel = 'Arsip Dinamis Aktif';
+        } elseif ($filter === 'inactive') {
+            $query->where('kategori_arsip', 'Dinamis Inaktif');
+            $filterLabel = 'Arsip Dinamis Inaktif';
+        } elseif ($filter === 'authenticated') {
+            $query->where('status_authentication', 'Terautentikasi');
+            $filterLabel = 'Arsip Terautentikasi';
+        } elseif ($kegiatanId !== '') {
+            $query->where('kegiatan_id', $kegiatanId);
+            $filterLabel = 'Arsip per kegiatan';
+        }
+
+        return view('archives/index', [
+            'archives' => $query->findAll(),
+            'filterLabel' => $filterLabel,
+            'hasFilter' => $filter !== '' || $kegiatanId !== '',
+        ]);
     }
 
     public function preview()
@@ -94,18 +117,13 @@ class ArchiveController extends BaseController
                 ),
                 'lokasi' => trim((string) $this->request->getPost('lokasi')),
             ];
-<<<<<<< HEAD
             $sheet = $inspection['sheets'][$inspection['sheet']];
             if (!array_key_exists('uraian', $sheet['mapping'])) {
-                session()->set('import_payload', ['kegiatan_id' => $kegiatanId, 'inspection' => $inspection, 'batch' => $batch]);
+                $this->session->set('import_payload', ['kegiatan_id' => $kegiatanId, 'inspection' => $inspection, 'batch' => $batch]);
                 return redirect()->to('/archives/mapping')->with('error', 'Beberapa kolom Excel tidak dapat dikenali otomatis. Pilih hanya kolom Uraian.');
             }
 
             return $this->buildPreview($sheet, $sheet['mapping'], $batch, $kegiatanId);
-=======
-            $this->session->set('import_payload', ['kegiatan_id' => $kegiatanId, 'inspection' => $inspection, 'batch' => $batch]);
-            return redirect()->to('/archives/mapping');
->>>>>>> e2270dc (kolom)
         } catch (\Throwable $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal membaca file Excel: ' . $e->getMessage());
         }
@@ -188,16 +206,10 @@ class ArchiveController extends BaseController
             return redirect()->to('/archives/import')->withInput()->with('error', implode(' ', $errors));
         }
 
-<<<<<<< HEAD
-        session()->set('preview_data', $rows);
-        session()->set('preview_kegiatan_id', $kegiatanId);
-        session()->remove('import_payload');
-=======
         $this->session->set('preview_data', $rows);
         $this->session->set('preview_summary', $this->summary($rows));
-        $this->session->set('preview_kegiatan_id', $payload['kegiatan_id']);
+    $this->session->set('preview_kegiatan_id', $kegiatanId);
         $this->session->remove('import_payload');
->>>>>>> e2270dc (kolom)
         return redirect()->to('/archives/preview');
     }
 

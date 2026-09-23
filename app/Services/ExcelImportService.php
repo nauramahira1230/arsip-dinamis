@@ -8,21 +8,13 @@ class ExcelImportService
 {
     private const HEADER_ALIASES = [
         'no' => ['no', 'nomor', 'nomor urut'],
-<<<<<<< HEAD
-        'kode_klasifikasi' => ['kode klasifikasi', 'kode klas', 'klasifikasi', 'klas', 'indeks'],
+    'indeks' => ['indeks', 'index'],
+    'kode_klasifikasi' => ['kode klasifikasi', 'kode klas', 'klasifikasi', 'klas', 'indeks'],
         'uraian' => ['uraian', 'uraian arsip', 'deskripsi', 'informasi'],
         'kurun_waktu' => ['kurun waktu', 'tahun', 'periode'],
         'tingkat_perkembangan' => ['tingkat perkembangan', 'tingkat', 'status dokumen'],
         'jumlah_lembar' => ['jumlah lembar', 'jml lembar', 'jumlah', 'lembar'],
-=======
-        'indeks' => ['indeks', 'index'],
-        'kode_klasifikasi' => ['klas', 'klasifikasi', 'kode klasifikasi'],
-        'uraian' => ['uraian', 'uraian arsip', 'deskripsi', 'informasi'],
-        'kurun_waktu' => ['kurun waktu', 'tahun', 'periode'],
-        'tingkat_perkembangan' => ['tingkat perkembangan', 'tingkat', 'status dokumen'],
-        'jumlah_lembar' => ['jumlah', 'jumlah lembar', 'jml lembar', 'lembar'],
         'jumlah_sumber' => ['jumlah', 'jumlah berkas', 'volume'],
->>>>>>> e2270dc (kolom)
         'lokasi_simpan' => ['lokasi simpan', 'lokasi', 'tempat simpan'],
         'no_item' => ['no item', 'nomor item', 'item', 'berkas', 'nomor berkas'],
         'boks' => ['boks', 'box'],

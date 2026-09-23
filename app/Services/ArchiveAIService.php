@@ -6,13 +6,8 @@ class ArchiveAIService
 {
     public function analyze(array $descriptions): array
     {
-<<<<<<< HEAD
-        if ($descriptions === [] || !env('GEMINI_API_KEY')) {
-            return array_map(fn (string $description): array => $this->fallback($description), $descriptions);
-=======
         if ($descriptions === []) {
             return [];
->>>>>>> e2270dc (kolom)
         }
 
         $results = array_map(fn (string $description): array => $this->ruleBased($description), $descriptions);
@@ -20,15 +15,28 @@ class ArchiveAIService
             return $results;
         }
 
-        $prompt = 'Analisis setiap uraian arsip berikut dan kembalikan HANYA JSON array dengan urutan sama. '
-            . 'Isi jenis_naskah, kategori_arsip, nama_berkas, confidence, dan metadata. '
+        $systemPrompt = 'Tugasmu adalah mengklasifikasikan JENIS NASKAH dan KATEGORI ARSIP dari data NAMA BERKAS atau URAIAN ARSIP. '
+            . 'Analisis maksud dan isi teks secara dinamis, lalu pilih tepat satu jenis naskah dari daftar berikut: '
+            . 'Surat Permohonan untuk Permohonan, Berkas Permohonan, Pengajuan, Berkas Izin, Izin Usaha, atau Permohonan Mendirikan/Melanjutkan; '
+            . 'Surat Keputusan untuk Keputusan, SK, Penetapan, atau Pengesahan; '
+            . 'Surat Tugas untuk Surat Tugas, Surat Perintah, Penugasan, ST, atau Sprin; '
+            . 'Berita Acara untuk Berita Acara, BA, Serah Terima, atau Hasil Pemeriksaan; '
+            . 'Surat Pengantar untuk Pengantar atau Surat Pengantar; '
+            . 'Surat Keterangan untuk Keterangan atau Suket; '
+            . 'Laporan untuk Laporan atau Lap; '
+            . 'Perjanjian Kerja Sama untuk Perjanjian, Kontrak, MoU, atau PKS. '
+            . 'Jangan gunakan Perlu Verifikasi kecuali teks hanya berisi angka acak atau simbol tanpa makna sama sekali. '
+            . 'Gunakan Dinamis Vital atau Vital jika berkaitan dengan Izin Usaha, Pendirian Perusahaan, Kepemilikan, Aset, Sertifikat Tanah atau Aset, Akta, atau Legalitas Hukum Utama. '
+            . 'Gunakan Dinamis Aktif untuk administrasi umum, operasional harian, surat menyurat rutin, tugas harian, atau laporan rutin. '
+            . 'Kembalikan HANYA JSON array dengan urutan sama. Setiap item wajib memiliki jenis_naskah, kategori_arsip, nama_berkas, confidence, dan metadata. '
             . 'Gunakan hanya fakta yang tertulis dalam uraian. Field metadata hanya boleh berisi nama_pihak, nomor_dokumen, luas_tanah, desa, kecamatan. '
-            . 'Gunakan null jika fakta tidak ada. Jangan menulis Perlu Verifikasi ke field data. '
-            . 'Nama berkas harus ringkas namun mempertahankan identitas penting, bukan salinan seluruh uraian. '
+            . 'Gunakan null jika fakta tidak ada. Nama berkas harus ringkas namun mempertahankan identitas penting, bukan salinan seluruh uraian.';
+        $prompt = 'Data arsip yang harus dianalisis: '
             . json_encode(array_values($descriptions), JSON_UNESCAPED_UNICODE);
 
         $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . rawurlencode(env('GEMINI_API_KEY'));
         $payload = [
+            'systemInstruction' => ['parts' => [['text' => $systemPrompt]]],
             'contents' => [['parts' => [['text' => $prompt]]]],
             'generationConfig' => ['response_mime_type' => 'application/json'],
         ];
@@ -47,23 +55,11 @@ class ArchiveAIService
         $text = json_decode((string) $response, true)['candidates'][0]['content']['parts'][0]['text'] ?? null;
         $decoded = is_string($text) ? json_decode($text, true) : null;
         if (!is_array($decoded)) {
-<<<<<<< HEAD
-            return array_map(fn (string $description): array => $this->fallback($description), $descriptions);
-=======
             return $results;
->>>>>>> e2270dc (kolom)
         }
 
         foreach ($descriptions as $index => $description) {
             $item = is_array($decoded[$index] ?? null) ? $decoded[$index] : [];
-<<<<<<< HEAD
-            $fallback = $this->fallback($description);
-            $results[] = [
-                'jenis_naskah' => trim((string) ($item['jenis_naskah'] ?? '')) ?: $fallback['jenis_naskah'],
-                'kategori_arsip' => trim((string) ($item['kategori_arsip'] ?? '')) ?: $fallback['kategori_arsip'],
-                'nama_berkas' => trim((string) ($item['nama_berkas'] ?? '')) ?: $fallback['nama_berkas'],
-            ];
-=======
             $candidate = $results[$index];
             foreach (['jenis_naskah', 'kategori_arsip', 'nama_berkas'] as $field) {
                 $value = $this->nullableText($item[$field] ?? null);
@@ -80,83 +76,42 @@ class ArchiveAIService
             $candidate['ai_status'] = $confidence >= 0.75 ? 'AUTO' : 'PERLU_VERIFIKASI';
             $candidate['ai_metadata'] = $this->metadata($item['metadata'] ?? [], $description);
             $results[$index] = $candidate;
->>>>>>> e2270dc (kolom)
         }
         return $results;
     }
 
-<<<<<<< HEAD
-    private function fallback(string $description): array
-    {
-        $text = trim(preg_replace('/\s+/u', ' ', $description) ?? $description);
-        $upper = strtoupper($text);
-        $jenis = 'Perlu Verifikasi';
-        foreach ([
-            '/\bSALINAN\s+SK\b/u' => 'Salinan Keputusan',
-            '/\b(SK|SURAT KEPUTUSAN)\b/u' => 'Surat Keputusan',
-            '/\bSURAT\s+PERMOHONAN\b/u' => 'Surat Permohonan',
-            '/\bNOTA\s+DINAS\b/u' => 'Nota Dinas',
-            '/\b(SERTIPIKAT|SERTIFIKAT)\b/u' => 'Sertifikat',
-            '/\bBERITA\s+ACARA\b/u' => 'Berita Acara',
-        ] as $pattern => $label) {
-            if (preg_match($pattern, $upper)) {
-                $jenis = $label;
-=======
     private function ruleBased(string $description): array
     {
         $text = $this->clean($description);
         $upper = strtoupper($text);
-        $jenis = null;
+        $jenis = 'Surat Keterangan';
         $confidence = 0.35;
 
         $patterns = [
-            'SALINAN SK' => ['Salinan Keputusan', 0.92],
-            'SERTIPIKAT' => ['Sertifikat', 0.92],
-            'SERTIFIKAT' => ['Sertifikat', 0.92],
-            'SURAT PERMOHONAN' => ['Surat Permohonan', 0.9],
-            'BERITA ACARA' => ['Berita Acara', 0.92],
-            'SK ' => ['Surat Keputusan', 0.86],
-            'KEPUTUSAN ' => ['Surat Keputusan', 0.82],
+            '/\b(?:PERMOHONAN|BERKAS\s+PERMOHONAN|PENGAJUAN|BERKAS\s+IZIN|IZIN\s+USAHA|PERMOHONAN\s+(?:MENDIRIKAN|MELANJUTKAN))\b/u' => ['Surat Permohonan', 0.9],
+            '/\bSALINAN\s+SK\b/u' => ['Salinan Keputusan', 0.92],
+            '/\b(?:KEPUTUSAN|SK|PENETAPAN|PENGESAHAN)\b/u' => ['Surat Keputusan', 0.86],
+            '/\b(?:SURAT\s+TUGAS|SURAT\s+PERINTAH|PENUGASAN|ST|SPRIN)\b/u' => ['Surat Tugas', 0.86],
+            '/\b(?:BERITA\s+ACARA|BA|SERAH\s+TERIMA|HASIL\s+PEMERIKSAAN)\b/u' => ['Berita Acara', 0.92],
+            '/\b(?:SURAT\s+PENGANTAR|PENGANTAR)\b/u' => ['Surat Pengantar', 0.86],
+            '/\b(?:SURAT\s+KETERANGAN|KETERANGAN|SUKET)\b/u' => ['Surat Keterangan', 0.8],
+            '/\b(?:LAPORAN|LAP)\b/u' => ['Laporan', 0.86],
+            '/\b(?:PERJANJIAN|KONTRAK|MOU|PKS)\b/u' => ['Perjanjian Kerja Sama', 0.9],
         ];
-        foreach ($patterns as $needle => [$label, $score]) {
-            if (str_contains($upper, $needle)) {
+        foreach ($patterns as $pattern => [$label, $score]) {
+            if (preg_match($pattern, $upper)) {
                 $jenis = $label;
                 $confidence = $score;
->>>>>>> e2270dc (kolom)
                 break;
             }
         }
 
-<<<<<<< HEAD
-        $kategori = preg_match('/\b(TANAH|PERTANAHAN|HGB|HAK\s+GUNA|PELEPASAN\s+HAK)\b/u', $upper)
-            ? 'Pertanahan'
-            : 'Perlu Verifikasi';
-        $name = $this->makeName($text, $jenis);
-
-        return ['jenis_naskah' => $jenis, 'kategori_arsip' => $kategori, 'nama_berkas' => $name];
-    }
-
-    private function makeName(string $text, string $jenis): ?string
-    {
-        if ($text === '') {
-            return null;
-        }
-        $name = preg_replace('/\s+/u', ' ', $text) ?? $text;
-        $name = preg_replace('/\bNO\s*:\s*[^ ]+/iu', '', $name) ?? $name;
-        $name = preg_replace('/\b(SALINAN\s+)?SK\b/iu', 'SK', $name) ?? $name;
-        $name = preg_replace('/\b(MENERIMA|MEMBATALKAN|TENTANG|DAN|DARI|KEPADA)\b.*$/iu', '', $name) ?? $name;
-        $name = trim($name, " .,:;-\t\n\r\0\x0B");
-        if ($name === '' || strlen($name) > 120) {
-            $name = trim(substr($name !== '' ? $name : $text, 0, 120));
-        }
-        return $name !== '' ? $name : ($jenis !== 'Perlu Verifikasi' ? $jenis : null);
-=======
         $metadata = $this->metadata([], $text);
         return [
             'jenis_naskah' => $jenis,
-            'kategori_arsip' => $jenis === null ? null : 'Dinamis Aktif',
+            'kategori_arsip' => $this->isVital($upper) ? 'Dinamis Vital' : 'Dinamis Aktif',
             'nama_berkas' => $this->fileName($text, $jenis),
-            'ai_status' => $confidence >= 0.75 ? 'AUTO' : 'PERLU_VERIFIKASI',
+            'ai_status' => $this->isMeaningless($text) ? 'PERLU_VERIFIKASI' : 'AUTO',
             'ai_confidence' => $confidence,
             'ai_metadata' => $metadata,
         ];
@@ -241,6 +196,15 @@ class ArchiveAIService
     private function clean(string $value): string
     {
         return trim(preg_replace('/\s+/u', ' ', $value) ?? $value);
->>>>>>> e2270dc (kolom)
+    }
+
+    private function isVital(string $text): bool
+    {
+        return preg_match('/\b(?:IZIN\s+USAHA|PENDIRIAN\s+PERUSAHAAN|KEPEMILIKAN|ASET|SERT(?:I|I)FIKAT\s+(?:TANAH|ASET)|AKTA|LEGALITAS\s+HUKUM)\b/u', $text) === 1;
+    }
+
+    private function isMeaningless(string $text): bool
+    {
+        return $text === '' || preg_match('/^[\d\W_]+$/u', $text) === 1;
     }
 }

@@ -12,14 +12,12 @@ class NumberingService
 
     public function apply(array $rows, string $kegiatanId, string $mode = 'continue'): array
     {
+        $storedMaxByYear = $mode === 'new' ? [] : $this->storedMaxByYear($kegiatanId);
+        $nextByYear = [];
         foreach ($rows as &$row) {
-<<<<<<< HEAD
             $row['no_item'] = $this->blank($row['no_item'] ?? null)
                 ? null
                 : $row['no_item'];
-            if ($this->blank($row['no_sampul'] ?? null)) {
-                $row['no_sampul'] = null;
-=======
             $year = $this->yearKey($row['kurun_waktu'] ?? null);
             if ($this->blank($row['no_sampul'] ?? null)) {
                 if (!array_key_exists($year, $nextByYear)) {
@@ -31,15 +29,12 @@ class NumberingService
                     $nextByYear[$year] ?? (($storedMaxByYear[$year] ?? 0) + 1),
                     $this->numberValue($row['no_sampul']) + 1
                 );
->>>>>>> e2270dc (kolom)
             }
         }
         unset($row);
         return $rows;
     }
 
-<<<<<<< HEAD
-=======
     private function storedMaxByYear(string $kegiatanId): array
     {
         $maxByYear = [];
@@ -64,7 +59,6 @@ class NumberingService
         return $digits === '' ? 0 : (int) $digits;
     }
 
->>>>>>> e2270dc (kolom)
     private function blank(mixed $value): bool
     {
         return $value === null || trim((string) $value) === '';
